@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@color/header"
+    >
+    <TextView
+        android:id="@+id/delivery_no"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:text="发运单1：9109220:0"
+        android:textSize="@dimen/dp14"
+        android:textColor="@color/white"
+        />
+    <TextView
+        android:id="@+id/btn_unbind"
+        android:layout_width="80dp"
+        android:layout_height="25dp"
+        android:layout_centerVertical="true"
+        android:background="#00000000"
+        android:text="解除绑定"
+        android:gravity="center"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp14"
+        />
+    <!--<View-->
+        <!--android:layout_width="800dp"-->
+        <!--android:layout_height="@dimen/line"-->
+        <!--android:background="@color/line"-->
+        <!--android:layout_alignParentBottom="true"/>-->
+</LinearLayout>
