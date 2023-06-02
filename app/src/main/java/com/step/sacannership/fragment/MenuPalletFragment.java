@@ -22,6 +22,7 @@ import com.step.sacannership.activity.DeliveryTestActivity;
 import com.step.sacannership.activity.ModifyNumActivity;
 import com.step.sacannership.activity.ModifyNumCancelActivity;
 import com.step.sacannership.activity.PalletMaterialActivity;
+import com.step.sacannership.activity.ProductAssembleActivity;
 import com.step.sacannership.activity.ScanTrayActivity;
 import com.step.sacannership.activity.SearchPalletActivity;
 import com.step.sacannership.activity.TrayTestActivity;
@@ -150,6 +151,10 @@ public class MenuPalletFragment extends Fragment {
                     intent.setClass(getContext(), BackUnBindActivity.class);
                     startActivity(intent);
                     break;
+                case "product_assemble_info":
+                    intent.setClass(getContext(), ProductAssembleActivity.class);
+                    startActivity(intent);
+                    break;
             }
         });
         initItem();
@@ -224,6 +229,8 @@ public class MenuPalletFragment extends Fragment {
                 menuItem = new MenuItem("退货机器解绑", "back_unBind");
                 datas.add(menuItem);
             }
+            menuItem = new MenuItem("产品组装扫描", "product_assemble_info");
+            datas.add(menuItem);
             menuAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();

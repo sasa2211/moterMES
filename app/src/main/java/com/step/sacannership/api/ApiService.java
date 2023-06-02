@@ -9,7 +9,9 @@ import com.step.sacannership.model.bean.LogisticsBean;
 import com.step.sacannership.model.bean.LogisticsListBean;
 import com.step.sacannership.model.bean.MaterialBean;
 import com.step.sacannership.model.bean.NpBindSaveBean;
+import com.step.sacannership.model.bean.ProductItem;
 import com.step.sacannership.model.bean.Request;
+import com.step.sacannership.model.bean.Result;
 import com.step.sacannership.model.bean.ScanDeliveryMaterialBean;
 import com.step.sacannership.model.bean.TrayInfoBean;
 import com.step.sacannership.model.bean.UnBind;
@@ -31,6 +33,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 import retrofit2.http.Streaming;
 
 public interface ApiService {
@@ -206,4 +209,8 @@ public interface ApiService {
 
     @GET("deliveryBillMaterialBarcodes/unbindSn/{sn}")
     Flowable<ResponseBody> backUnbind(@Path("sn") String sn);
+    @GET("productionOrderPartsSns/page")
+    Flowable<Result<ProductItem>> getProductList(@QueryMap Request request);
+
+
 }

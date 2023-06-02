@@ -26,6 +26,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activity.ProductAssembleSetActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ProductAssembleActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.BackUnBindActivity"
             android:exported="false" />
         <activity

@@ -28,7 +28,9 @@ import com.step.sacannership.model.bean.DeliveryBillPalletDetailsBean;
 import com.step.sacannership.model.bean.DeliveryDetailBean;
 import com.step.sacannership.model.bean.NoPalletDetails;
 import com.step.sacannership.model.bean.NpBindSaveBean;
+import com.step.sacannership.model.bean.ProductItem;
 import com.step.sacannership.model.bean.Request;
+import com.step.sacannership.model.bean.Result;
 import com.step.sacannership.model.bean.ScanDeliveryMaterialBean;
 import com.step.sacannership.model.bean.TrayDeliveryBean;
 import com.step.sacannership.model.bean.TrayInfoBean;
@@ -37,6 +39,9 @@ import com.step.sacannership.model.bean.UserBean;
 import com.step.sacannership.tools.SPTool;
 import com.step.sacannership.tools.ToastUtils;
 import com.step.sacannership.update.UpdateBean;
+
+import org.reactivestreams.Subscription;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +53,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -812,6 +818,22 @@ public class TModel extends BaseModuel{
                 presenter.dismissDialog();
                 presenter.getFailed(getErrorMessage(throwable));
             });
+        compositeDisposable.add(disposable);
+    }
+
+    public void getProductManifest(Request request, TPresenter<List<ProductItem>> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getProductList(request)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .map(Result::getRecords)
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
         compositeDisposable.add(disposable);
     }
 }

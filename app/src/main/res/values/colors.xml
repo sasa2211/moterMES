@@ -10,6 +10,7 @@
     <color name="line">#D7D7D7</color>
     <color name="header">#72CFF8</color>
     <color name="red">#F01459</color>
+    <color name="red_dark">#E15682</color>
     <color name="progress_bg">#999999</color>
     <color name="progress_start">#37a0fa</color>
     <color name="comDark">#2293F4</color>
