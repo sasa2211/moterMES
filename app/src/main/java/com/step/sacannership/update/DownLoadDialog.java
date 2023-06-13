@@ -43,7 +43,6 @@ public class DownLoadDialog extends QMUIDialogBuilder {
 
     int progressBefore = 0;
     public void setProgress(int progress, String progressText){
-        Log.e("TAGGG", "progress="+progress);
         context.runOnUiThread(() -> {
             tvProgress.setText(progressText);
             if (progressBefore != progress){
