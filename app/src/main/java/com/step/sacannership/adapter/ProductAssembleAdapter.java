@@ -1,19 +1,16 @@
 package com.step.sacannership.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.step.sacannership.R;
 import com.step.sacannership.model.bean.ProductItem;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -22,6 +19,12 @@ public class ProductAssembleAdapter extends RecyclerView.Adapter<ProductAssemble
 
     public ProductAssembleAdapter() {
         this.dates = new ArrayList<>();
+    }
+
+    private OnItemClick itemClick;
+
+    public void setItemClick(OnItemClick itemClick) {
+        this.itemClick = itemClick;
     }
 
     @NonNull
@@ -37,10 +40,12 @@ public class ProductAssembleAdapter extends RecyclerView.Adapter<ProductAssemble
         holder.tvNo.setText(String.valueOf(item.getScanIndex()));
         holder.serialNo.setText("产品sn:"+item.getSerialNumber());
         holder.partSerial.setText("部件sn:"+item.getPartsSerialNumber());
-        holder.creator.setText("采集人员"+item.getCreatorName());
-        holder.createTime.setText("采集时间"+item.getCreateTime());
+        holder.creator.setText("采集人员:"+item.getCreatorName());
+        holder.createTime.setText("采集时间:"+item.getCreateTime());
         holder.imgDelete.setOnClickListener(v->{
-
+            if (itemClick != null){
+                itemClick.onDelete(position);
+            }
         });
     }
 
@@ -77,10 +82,22 @@ public class ProductAssembleAdapter extends RecyclerView.Adapter<ProductAssemble
     public void removeItem(int position){
         this.dates.remove(position);
         notifyItemRemoved(position);
+        notifyItemRangeChanged(0, getItemCount());
     }
     public void clear(){
         int count = dates.size();
         this.dates.clear();
         notifyItemRangeRemoved(0, count);
+    }
+
+    public ProductItem getItem(int position){
+        if (position >= dates.size()){
+            return null;
+        }
+        return dates.get(position);
+    }
+
+    public interface OnItemClick{
+        void onDelete(int position);
     }
 }

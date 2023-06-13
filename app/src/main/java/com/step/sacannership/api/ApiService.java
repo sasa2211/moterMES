@@ -1,5 +1,7 @@
 package com.step.sacannership.api;
 
+import com.step.sacannership.model.bean.AssembleDeleteBean;
+import com.step.sacannership.model.bean.AssembleSubmitBean;
 import com.step.sacannership.model.bean.BindResultBean;
 import com.step.sacannership.model.bean.DeliveryBaseBean;
 import com.step.sacannership.model.bean.DeliveryBean;
@@ -10,6 +12,10 @@ import com.step.sacannership.model.bean.LogisticsListBean;
 import com.step.sacannership.model.bean.MaterialBean;
 import com.step.sacannership.model.bean.NpBindSaveBean;
 import com.step.sacannership.model.bean.ProductItem;
+import com.step.sacannership.model.bean.ProductLine;
+import com.step.sacannership.model.bean.ProductOrderInfo;
+import com.step.sacannership.model.bean.ProductSnInfo;
+import com.step.sacannership.model.bean.ProductStatue;
 import com.step.sacannership.model.bean.Request;
 import com.step.sacannership.model.bean.Result;
 import com.step.sacannership.model.bean.ScanDeliveryMaterialBean;
@@ -211,6 +217,21 @@ public interface ApiService {
     Flowable<ResponseBody> backUnbind(@Path("sn") String sn);
     @GET("productionOrderPartsSns/page")
     Flowable<Result<ProductItem>> getProductList(@QueryMap Request request);
-
-
+    @GET("productionLines/all")
+    Flowable<List<ProductLine>> getProductLines(@Query("workCenterNo") String no);
+    @GET("sapProductionOrders/bySN")
+    Flowable<ProductSnInfo> getProductInfoBySn(@Query("sn") String no);
+    @GET("sapProductionOrders/byOrderNO")
+    Flowable<ResponseBody> getProductInfoByOrder(@Query("orderNo") String no);
+    @GET("rtRouteStationls/selectorItems")
+    Flowable<List<ProductStatue>> getStationNo(@Query("orderNo")String orderNo, @Query("isTest") boolean isTest);
+    //{ "num": 1}获取站点数量
+    @GET("productionOrderRtStations/stationCount")
+    Flowable<Request> getStationCount(@Query("orderId") int orderId, @Query("stationId") int id);
+    @GET("productionOrderMaterialSns/getStationSuccessRecord")//获取已扫描数量
+    Flowable<Integer> getScanNum(@Query("orderId") int orderId, @Query("stationId") int id);
+    @POST("productionOrderPartsSns")
+    Flowable<ResponseBody> postSn(@Body AssembleSubmitBean bean);
+    @POST("productionOrderPartsSns/delete")
+    Flowable<ResponseBody> deleteSn(@Body AssembleDeleteBean bean);
 }

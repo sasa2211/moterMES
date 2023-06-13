@@ -112,7 +112,6 @@ public class BaseModuel {
         };
 
         OkHttpClient okHttp = new OkHttpClient.Builder()
-//        OkHttpClient okHttpClient = ProgressHelper.addProgress(null)
                 .readTimeout(20, TimeUnit.SECONDS)
                 .connectTimeout(20, TimeUnit.SECONDS)
                 //.addNetworkInterceptor(new NetworkBaseInterceptor())

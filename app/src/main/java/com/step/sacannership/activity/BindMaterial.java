@@ -1,7 +1,7 @@
 package com.step.sacannership.activity;
 
 import android.content.Intent;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -85,13 +85,11 @@ public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDe
         }else {
             deliveryNo.setFocusable(true);
             requestFocus(deliveryNo);
+            setOnclick(deliveryNo);
         }
     }
 
     private void setEdit() {
-        requestFocus(deliveryNo);
-        setOnclick(deliveryNo);
-//        setOnclick(materialNo);
         deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
                 getDeliveryMaterialList();

@@ -3,7 +3,6 @@ package com.step.sacannership.api;
 import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.ljd.retrofit.progress.ProgressHelper;
 import com.step.sacannership.activity.App;
 import com.step.sacannership.tools.SPTool;
 
@@ -55,6 +54,7 @@ public class ApiManager {
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(logInterceptor)
                 .addInterceptor(new MyIntercepter())
+
                 .cache(cache)
                 .build();
 

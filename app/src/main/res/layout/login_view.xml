@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp">
@@ -19,7 +19,7 @@
             android:textSize="@dimen/dp16"
             android:textColor="@color/black"
             />
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/line"
@@ -111,16 +111,16 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="30dp"
         />
+
     <TextView
         android:id="@+id/tv_server"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_update"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
-        android:text="配置服务器地址"
-        />
+        android:layout_marginRight="30dp"
+        android:text="配置服务器地址" />
     <TextView
         android:id="@+id/tv_progress"
         android:layout_above="@+id/progress_bar"

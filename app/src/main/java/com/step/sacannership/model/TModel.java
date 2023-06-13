@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.gson.Gson;
-import com.ljd.retrofit.progress.DownloadProgressHandler;
-import com.ljd.retrofit.progress.ProgressBean;
-import com.ljd.retrofit.progress.ProgressHelper;
 import com.step.sacannership.BuildConfig;
 import com.step.sacannership.activity.App;
 import com.step.sacannership.activity.ArriveActivity;
@@ -21,7 +18,8 @@ import com.step.sacannership.listener.SyncCodeListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.listener.TrayInfoListener;
 import com.step.sacannership.listener.UnBindDeliveryListener;
-import com.step.sacannership.listener.UpdateListener;
+import com.step.sacannership.model.bean.AssembleDeleteBean;
+import com.step.sacannership.model.bean.AssembleSubmitBean;
 import com.step.sacannership.model.bean.DeliveryBaseBean;
 import com.step.sacannership.model.bean.DeliveryBean;
 import com.step.sacannership.model.bean.DeliveryBillPalletDetailsBean;
@@ -29,6 +27,10 @@ import com.step.sacannership.model.bean.DeliveryDetailBean;
 import com.step.sacannership.model.bean.NoPalletDetails;
 import com.step.sacannership.model.bean.NpBindSaveBean;
 import com.step.sacannership.model.bean.ProductItem;
+import com.step.sacannership.model.bean.ProductLine;
+import com.step.sacannership.model.bean.ProductOrderInfo;
+import com.step.sacannership.model.bean.ProductSnInfo;
+import com.step.sacannership.model.bean.ProductStatue;
 import com.step.sacannership.model.bean.Request;
 import com.step.sacannership.model.bean.Result;
 import com.step.sacannership.model.bean.ScanDeliveryMaterialBean;
@@ -673,105 +675,6 @@ public class TModel extends BaseModuel{
         compositeDisposable.add(disposable);
     }
 
-    /**
-     * 下载apk
-     * */
-    public void downLoadFile(String path, String version, UpdateListener listener) {
-        ProgressBean progressBean = new ProgressBean();
-        ProgressHelper.setProgressHandler(new DownloadProgressHandler() {
-            @Override
-            protected void onProgress(long bytesRead, long contentLength, boolean done) {
-
-                progressBean.setBytesRead(bytesRead);
-                progressBean.setContentLength(contentLength);
-                progressBean.setDone(done);
-                listener.downSuccess(progressBean);
-            }
-        });
-        ApiService apiService = getAPI(path);
-
-        int index = path.lastIndexOf("/");
-        String urlPath = "";
-        if (index != -1){
-            urlPath = path.substring(index);
-        }else {
-            urlPath = path;
-        }
-        if (urlPath.startsWith("/")){
-            urlPath = urlPath.substring(1);
-        }
-
-        Disposable disposable = apiService.downloadApk(urlPath).
-                compose(toMain()).
-                subscribe(responseBody -> {
-                    try {
-                        File createFile = new File(ToastUtils.apkFile);
-                        if (!createFile.exists()){
-                            createFile.mkdirs();
-                        }
-                        InputStream is =  responseBody.byteStream();
-                        File file = new File(createFile, "电机mes_"+version+".apk");
-
-                        FileOutputStream fos = new FileOutputStream(file);
-                        BufferedInputStream bis = new BufferedInputStream(is);
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = bis.read(buffer)) != -1) {
-                            fos.write(buffer, 0, len);
-                            fos.flush();
-                        }
-                        fos.close();
-                        bis.close();
-                        is.close();
-                        ToastUtils.installApp(file.getPath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }, throwable -> listener.downLoadFailed(getErrorMessage(throwable)));
-        compositeDisposable.add(disposable);
-    }
-
-    public ApiService getAPI(String filePath){
-        StringBuilder sbFile = new StringBuilder(SPTool.getServer());
-
-        int index = filePath.lastIndexOf("/");
-        if (index != -1){
-            String apkFile = filePath.substring(0, index);
-            sbFile.append(apkFile);
-        }
-        if (sbFile.lastIndexOf("/") != sbFile.length() - 1){
-            sbFile.append("/");
-        }
-
-        //开启Log
-        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(message -> Log.e("TAGGG", "message="+message));
-        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(sbFile.toString());
-
-        //增加头部信息
-        Interceptor headerInterceptor = chain -> {
-            okhttp3.Request build = chain.request().newBuilder()
-                    .addHeader("Content-Type", "application/json")
-                    .build();
-            return chain.proceed(build);
-        };
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        OkHttpClient okHttpClient = ProgressHelper.addProgress(builder)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .addInterceptor(headerInterceptor)
-                .addInterceptor(logInterceptor)
-                .build();
-
-        ApiService aApi = retrofitBuilder
-                .client(okHttpClient)
-                .build().create(ApiService.class);
-        return aApi;
-    }
     public void exportMaterialSn(String materialCode, String materialSn, TPresenter<ResponseBody> presenter){
         if (apiService == null) apiService = ApiManager.getService(ApiService.class);
         Disposable disposable = apiService.saveSerialNo(materialCode, materialSn)
@@ -827,6 +730,126 @@ public class TModel extends BaseModuel{
                 .compose(toMain())
                 .doOnSubscribe(subscription -> presenter.showDialog(""))
                 .map(Result::getRecords)
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    public void getAllLines(String filter, TPresenter<List<ProductLine>> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getProductLines(filter)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    public void getProductInfoBySn(String snText, TPresenter<ProductSnInfo> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getProductInfoBySn(snText)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+    public void getProductInfoByOrder(String snText, TPresenter<ProductOrderInfo> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getProductInfoByOrder(snText)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .subscribe(response -> {
+                    presenter.dismissDialog();
+                    String result = response.string();
+                    ProductOrderInfo info;
+                    try {
+                        info = new Gson().fromJson(result, ProductOrderInfo.class);
+                        presenter.getSuccess(info);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        presenter.getFailed("请求失败");
+                    }
+                }, throwable -> {
+                    String error = getErrorMessage(throwable);
+                    presenter.dismissDialog();
+                    presenter.getFailed(error);
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    public void getProductStatue(String orderNo, TPresenter<List<ProductStatue>> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getStationNo(orderNo, false)
+                .compose(toMain())
+                .subscribe(presenter::getSuccess,
+                throwable -> presenter.getFailed(getErrorMessage(throwable)));
+        compositeDisposable.add(disposable);
+    }
+    public void getStationCount(int orderNo, int stationId, TPresenter<Request> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getStationCount(orderNo, stationId)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+    public void getScannedNum(int orderNo, int stationId, TPresenter<Integer> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.getScanNum(orderNo, stationId)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog(""))
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    public void submitAssembleInfo(AssembleSubmitBean bean, TPresenter<ResponseBody> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.postSn(bean)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog("正在提交"))
+                .subscribe(records -> {
+                    presenter.dismissDialog();
+                    presenter.getSuccess(records);
+                }, throwable -> {
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    public void deleteAssembleSn(AssembleDeleteBean bean, TPresenter<ResponseBody> presenter){
+        if (apiService == null) apiService = ApiManager.getService(ApiService.class);
+        Disposable disposable = apiService.deleteSn(bean)
+                .compose(toMain())
+                .doOnSubscribe(subscription -> presenter.showDialog("正在删除sn信息"))
                 .subscribe(records -> {
                     presenter.dismissDialog();
                     presenter.getSuccess(records);

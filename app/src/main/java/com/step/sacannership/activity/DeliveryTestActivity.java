@@ -1,9 +1,9 @@
 package com.step.sacannership.activity;
 
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.EditText;
@@ -16,7 +16,6 @@ import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.model.bean.DeliveryBean;
 import com.step.sacannership.model.bean.DeliveryDetailBean;
-import com.step.sacannership.model.bean.UnBindBean;
 
 import java.util.ArrayList;
 import java.util.List;

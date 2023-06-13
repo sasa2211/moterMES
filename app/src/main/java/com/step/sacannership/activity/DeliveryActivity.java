@@ -1,10 +1,10 @@
 package com.step.sacannership.activity;
 
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.text.Editable;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,7 +18,6 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
 import com.step.sacannership.listener.LogisticsListener;
-import com.step.sacannership.listener.OnTextChangeListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.listener.TrayInfoListener;
 import com.step.sacannership.model.TModel;

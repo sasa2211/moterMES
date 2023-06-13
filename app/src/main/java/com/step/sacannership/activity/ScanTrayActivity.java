@@ -1,35 +1,28 @@
 package com.step.sacannership.activity;
 
 import android.content.Intent;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
-import com.step.sacannership.adapter.UnBindAdapter;
 import com.step.sacannership.listener.BindListener;
-import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.listener.TrayInfoListener;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.model.bean.BindResultBean;
-import com.step.sacannership.model.bean.DeliveryBean;
-import com.step.sacannership.model.bean.DeliveryBillPalletDetailsBean;
 import com.step.sacannership.model.bean.TrayDeliveryBean;
 import com.step.sacannership.model.bean.TrayInfoBean;
 import com.step.sacannership.model.bean.UnBind;
-import com.step.sacannership.model.bean.UnBindBean;
 import com.step.sacannership.tools.SPTool;
 
 import java.util.ArrayList;
@@ -38,7 +31,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import qdx.stickyheaderdecoration.NormalDecoration;
 
 public class ScanTrayActivity extends BaseActivity implements TrayInfoListener, BindListener {
 

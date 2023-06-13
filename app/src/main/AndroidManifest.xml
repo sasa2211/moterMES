@@ -27,9 +27,11 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.ProductAssembleSetActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden"
             android:exported="false" />
         <activity
             android:name=".activity.ProductAssembleActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden"
             android:exported="false" />
         <activity
             android:name=".activity.BackUnBindActivity"
@@ -42,10 +44,6 @@
             android:name=".activity.ArriveActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden" />
 
-        <service
-            android:name=".service.UpdateService"
-            android:enabled="true"
-            android:exported="false" />
 
         <activity android:name=".activity.SearchPalletActivity" />
         <activity
@@ -92,7 +90,7 @@
             tools:replace="android:screenOrientation" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.step.sacannership.provider"
             android:exported="false"
             android:grantUriPermissions="true"

@@ -4,10 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -15,34 +15,25 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.ljd.retrofit.progress.ProgressBean;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.QMUILoadingView;
 import com.qmuiteam.qmui.widget.QMUIProgressBar;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
-import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
 import com.step.sacannership.BuildConfig;
 import com.step.sacannership.MainActivity;
 import com.step.sacannership.R;
-import com.step.sacannership.api.ApiManager;
-import com.step.sacannership.api.GlideApp;
+import com.step.sacannership.fragment.ConfigServerDialog;
 import com.step.sacannership.listener.TPresenter;
-import com.step.sacannership.listener.UpdateListener;
 import com.step.sacannership.model.TModel;
-import com.step.sacannership.model.bean.UpdateInfo;
 import com.step.sacannership.model.bean.UserBean;
-import com.step.sacannership.tools.FileUtil;
 import com.step.sacannership.tools.SPTool;
 import com.step.sacannership.update.DownLoadDialog;
 import com.step.sacannership.update.DownLoadInfo;
 import com.step.sacannership.update.DownloadManager;
 import com.step.sacannership.update.UpdateBean;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observer;
@@ -77,7 +68,7 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
 
         requestFocus(editAccount);
         initToolBar(toolbar);
-        GlideApp.with(this).asGif().load(R.mipmap.logo).into(imgLogo);
+        imgLogo.setImageResource(R.mipmap.logo);
         editAccount.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                 requestFocus(editPassword);
@@ -145,29 +136,32 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
                 login();
                 break;
             case R.id.tv_server:
-                QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(this);
-                builder.setTitle("配置服务器地址").setPlaceholder(SPTool.getServer());
-                builder.addAction("取消", (dialog, index) -> dialog.dismiss());
-                builder.addAction("确定", (dialog, index) -> {
-                    StringBuilder sb = new StringBuilder();
-                    EditText editText = builder.getEditText();
-                    String text = editText.getText().toString().trim();
-                    if (!TextUtils.isEmpty(text)){
-                        if (!text.startsWith("http://")){
-                            sb.append("http://");
-                        }
-                        sb.append(text);
-                        if (!text.endsWith("/")){
-                            sb.append("/");
-                        }
-                    }else {
-                        sb.append("http://192.168.50.3:8080/");
-                    }
-                    SPTool.put(LoginActivity.this, SPTool.Server, sb.toString().trim());
-                    ApiManager.refreshRetrofit();
-                    dialog.dismiss();
-                });
-                builder.create().show();
+//                QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(this);
+//                builder.setTitle("配置服务器地址").setPlaceholder(SPTool.getServer());
+//                builder.addAction("取消", (dialog, index) -> dialog.dismiss());
+//                builder.addAction("确定", (dialog, index) -> {
+//                    StringBuilder sb = new StringBuilder();
+//                    EditText editText = builder.getEditText();
+//                    String text = editText.getText().toString().trim();
+//                    if (!TextUtils.isEmpty(text)){
+//                        if (!text.startsWith("http://")){
+//                            sb.append("http://");
+//                        }
+//                        sb.append(text);
+//                        if (!text.endsWith("/")){
+//                            sb.append("/");
+//                        }
+//                    }else {
+//                        sb.append("http://192.168.50.3:8080/");
+//                    }
+//                    SPTool.put(LoginActivity.this, SPTool.Server, sb.toString().trim());
+//                    ApiManager.refreshRetrofit();
+//                    dialog.dismiss();
+//                });
+//                builder.create().show();
+
+                ConfigServerDialog serverDialog = new ConfigServerDialog(this);
+                serverDialog.create().show();
                 break;
             case R.id.btn_update:
                 checkUpdate();
@@ -296,93 +290,11 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
     }
 
 
-//    @Override
-//    public void getUpdateSuccess(UpdateInfo updateInfo) {
-//        int appVersion = FileUtil.getVersionCodeName(this);
-//        int serverVersion = 1;
-//        try {
-//            serverVersion = Integer.parseInt(updateInfo.getVersion());
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        if (serverVersion > appVersion){
-//            showMessage("发现新版本,版本号："+updateInfo.getVersion(), true, updateInfo.getFilepath(), updateInfo.getVersion());
-//        }else {
-//            showMessage("已是最新版本，无需更新", false);
-//        }
-//    }
-//
-//    @Override
-//    public void getUpdateFailed(String message) {
-//        showMessage("获取版本失败："+message, false);
-//    }
-
     private void showMessage(String message, boolean showDownload, String ...filePath){
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this).setMessage(message);
-//        if (showDownload){
-//            builder.addAction("取消", (dialog, index) -> dialog.dismiss())
-//                .addAction("下载", (dialog, index) -> {
-//                    dialog.dismiss();
-//                    if (filePath.length > 0){
-//
-//                        if (tModel == null){
-//                            tModel = new TModel();
-//                        }
-//                        tModel.downLoadFile(filePath[0], filePath[1], LoginActivity.this);
-//
-//                    }else {
-//                        showMessage("找不到下载链接，请联系相关人员确认！", false);
-//                    }
-//
-//                });
-//        }else {
-//            builder.addAction("确定", (dialog, index) -> dialog.dismiss());
-//        }
+
         builder.addAction("确定", (dialog, index) -> dialog.dismiss());
         builder.create().show();
     }
-//    QMUITipDialog tipDialog;
-//    @Override
-//    public void show() {
-//        if (tipDialog == null){
-//            tipDialog = new QMUITipDialog.Builder(this)
-//                    .setTipWord("正在获取最新版本")
-//                    .setIconType(QMUITipDialog.Builder.ICON_TYPE_LOADING)
-//                    .create();
-//        }
-//        tipDialog.show();
-//    }
-//
-//    @Override
-//    public void dismiss() {
-//        if (tipDialog != null){
-//            tipDialog.dismiss();
-//        }
-//    }
-//
-//    @Override
-//    public void downSuccess(ProgressBean progressBean) {
-//        if (progressBar.getVisibility() != View.VISIBLE){
-//            progressBar.setVisibility(View.VISIBLE);
-//        }
-//        if (tvProgress.getVisibility() != View.VISIBLE){
-//            tvProgress.setVisibility(View.VISIBLE);
-//        }
-//        if (progressBean.isDone()){
-//            tvProgress.setText("下载进度：100%");
-//            progressBar.setProgress(100, true);
-//        }else {
-//            long downByte = progressBean.getBytesRead();
-//            long countByte = progressBean.getContentLength();
-//            float progress = downByte * 100.0f / countByte;
-//            progressBar.setProgress((int)progress);
-//            DecimalFormat decimalFormat = new  DecimalFormat( ".00" );
-//            tvProgress.setText("下载进度："+decimalFormat.format(progress)+"%");
-//        }
-//    }
-//
-//    @Override
-//    public void downLoadFailed(String message) {
-//        showMessage("下载失败:"+message+"；请联系相关人员确认！", false);
-//    }
+
 }
