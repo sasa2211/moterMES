@@ -50,7 +50,10 @@ public class UnBindDeliveryActivity extends BaseActivity implements TPresenter<D
         initToolBar(toolbar);
 
         trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//                getTrayInfo();
+//            }
+            if (!isTwice()){
                 getTrayInfo();
             }
             QMUIKeyboardHelper.hideKeyboard(trayNo);

@@ -1,37 +1,28 @@
 package com.step.sacannership.activity;
 
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.widget.EditText;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUIEmptyView;
-import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.step.sacannership.R;
+import com.step.sacannership.databinding.BackUnBindViewBinding;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.tools.ToastUtils;
 import okhttp3.ResponseBody;
 
-public class BackUnBindActivity extends BaseActivity implements TPresenter<ResponseBody> {
+public class BackUnBindActivity extends BaseTActivity<BackUnBindViewBinding> implements TPresenter<ResponseBody> {
 
     @Override
     protected int contentView() {
         return R.layout.back_un_bind_view;
     }
 
-    private EditText editBarCode;
-    private QMUITopBarLayout topBarLayout;
-    private QMUIEmptyView emptyView;
     @Override
     protected void initView() {
-        emptyView = findViewById(R.id.empty_view);
-        topBarLayout = findViewById(R.id.topBar);
-        topBarLayout.setTitle("退货机器解绑");
-        topBarLayout.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
-        editBarCode = findViewById(R.id.editBarCode);
-        editBarCode.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP){
-                QMUIKeyboardHelper.hideKeyboard(editBarCode);
+        binding.topBar.setTitle("退货机器解绑");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
+        binding.editBarCode.setOnEditorActionListener((v, actionId, event) -> {
+            if (!isTwice()){
+                QMUIKeyboardHelper.hideKeyboard(v);
                 submitUnBind();
             }
             return true;
@@ -42,7 +33,7 @@ public class BackUnBindActivity extends BaseActivity implements TPresenter<Respo
         if (tModel == null){
             tModel = new TModel();
         }
-        String barCode = editBarCode.getText().toString().trim();
+        String barCode = binding.editBarCode.getText().toString().trim();
         if (TextUtils.isEmpty(barCode)){
             ToastUtils.showToast(this, "请扫描机器条码");
             return;
@@ -52,23 +43,23 @@ public class BackUnBindActivity extends BaseActivity implements TPresenter<Respo
 
     @Override
     public void showDialog(String message) {
-        emptyView.show("正在提交", "");
-        emptyView.setLoadingShowing(true);
+        binding.emptyView.show("正在提交", "");
+        binding.emptyView.setLoadingShowing(true);
     }
 
     @Override
     public void dismissDialog() {
-        emptyView.hide();
+        binding.emptyView.hide();
     }
 
     @Override
     public void getSuccess(ResponseBody responseBody) {
-        emptyView.show("成功", "");
-        requestFocus(editBarCode);
+        binding.emptyView.show("成功", "");
+        requestFocus(binding.editBarCode);
     }
 
     @Override
     public void getFailed(String message) {
-        emptyView.show("", message);
+        binding.emptyView.show("", message);
     }
 }

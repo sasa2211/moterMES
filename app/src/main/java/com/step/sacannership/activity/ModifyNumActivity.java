@@ -3,7 +3,6 @@ package com.step.sacannership.activity;
 import android.app.Dialog;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -11,6 +10,7 @@ import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.ModifyNumAdapter;
+import com.step.sacannership.databinding.ModifyNumViewBinding;
 import com.step.sacannership.listener.CancelListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
@@ -19,22 +19,19 @@ import com.step.sacannership.model.bean.DeliveryDetailBean;
 import com.step.sacannership.tools.LoadingDialog;
 import com.step.sacannership.tools.SPTool;
 import com.step.sacannership.tools.ToastUtils;
-
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.OnClick;
 
-public class ModifyNumActivity extends BaseActivity implements TPresenter<DeliveryBean>, CancelListener {
+public class ModifyNumActivity extends BaseTActivity<ModifyNumViewBinding> implements TPresenter<DeliveryBean>, CancelListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.delivery_no)
-    EditText deliveryNo;
-    @BindView(R.id.empty)
-    QMUIEmptyView empty;
-    @BindView(R.id.listView)
-    ListView listView;
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.delivery_no)
+//    EditText deliveryNo;
+//    @BindView(R.id.empty)
+//    QMUIEmptyView empty;
+//    @BindView(R.id.listView)
+//    ListView listView;
 
     private TModel tModel;
     private List<DeliveryDetailBean> deliveryDatas;
@@ -47,19 +44,25 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
-        requestFocus(deliveryNo);
+//        initToolBar(toolbar);
+        binding.topBar.setTitle("出库");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
+        requestFocus(binding.deliveryNo);
         haspallet = getIntent().getBooleanExtra("pallet", true);
 
-        deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+        binding.deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (!isTwice()){
                 getDeliveryMaterialList();
-                deliveryNo.setText("");
+                binding.deliveryNo.setText("");
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+//                getDeliveryMaterialList();
+//                deliveryNo.setText("");
+//            }
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
-        setOnclick(deliveryNo);
+        setOnclick(binding.deliveryNo);
 
         deliveryDatas = new ArrayList<>();
         adapter = new ModifyNumAdapter(deliveryDatas, this);
@@ -72,13 +75,23 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
                 e.printStackTrace();
             }
             adapter.notifyDataSetChanged();
-            QMUIKeyboardHelper.hideKeyboard(listView);
+            QMUIKeyboardHelper.hideKeyboard(binding.listView);
         });
-        listView.setAdapter(adapter);
+        binding.listView.setAdapter(adapter);
+
+        binding.refresh.setOnClickListener(v -> getDeliveryMaterialList());
+        binding.btnSubmit.setOnClickListener(v -> {
+            if (deliveryBean == null){SPTool.showToast(this, "无内容可提交");
+                return;
+            }
+            deliveryBean.setSapDeliveryBillDetails(deliveryDatas);
+            isSubmit = true;
+            tModel.submitMaterial(deliveryBean, this);
+        });
     }
 
     private void getDeliveryMaterialList() {
-        String billNo = deliveryNo.getText().toString().trim();
+        String billNo = binding.deliveryNo.getText().toString().trim();
         if (TextUtils.isEmpty(billNo)){
             SPTool.showToast(this, "发货单号不能为空");
             return;
@@ -90,22 +103,6 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
     }
 
     private boolean isSubmit = false;
-    @OnClick({R.id.refresh, R.id.btn_submit})
-    public void onViewClicked(View view) {
-        switch (view.getId()){
-            case R.id.refresh:
-                getDeliveryMaterialList();
-                break;
-            case R.id.btn_submit:
-                if (deliveryBean == null){SPTool.showToast(this, "无内容可提交");
-                    return;
-                }
-                deliveryBean.setSapDeliveryBillDetails(deliveryDatas);
-                isSubmit = true;
-                tModel.submitMaterial(deliveryBean, this);
-                break;
-        }
-    }
 
     DeliveryBean deliveryBean;
     @Override
@@ -118,13 +115,13 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
             adapter.notifyDataSetChanged();
         }
         if (deliveryDatas.isEmpty()){
-            empty.show("暂无数据", "");
+            binding.empty.show("暂无数据", "");
         }
     }
 
     @Override
     public void getFailed(String message) {
-        empty.show(false, "加载失败", message, "重新加载", view -> getDeliveryMaterialList());
+        binding.empty.show(false, "加载失败", message, "重新加载", view -> getDeliveryMaterialList());
     }
     private Dialog dialog;
     @Override
@@ -133,8 +130,8 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
             dialog = LoadingDialog.createLoadingDialog(this, "出库请求中");
             LoadingDialog.showLoadingDialog(dialog);
         }else {
-            empty.show(message, "");
-            empty.setLoadingShowing(true);
+            binding.empty.show(message, "");
+            binding.empty.setLoadingShowing(true);
             deliveryDatas.clear();
             deliveryBean = null;
         }
@@ -146,7 +143,7 @@ public class ModifyNumActivity extends BaseActivity implements TPresenter<Delive
             LoadingDialog.hideLoadingDialog(dialog);
             dialog = null;
         }else {
-            empty.hide();
+            binding.empty.hide();
         }
         isSubmit = false;
     }

@@ -2,36 +2,29 @@ package com.step.sacannership.activity;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.widget.EditText;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.UnBindAdapter;
+import com.step.sacannership.databinding.DeliveryTestViewBinding;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.model.bean.DeliveryBean;
 import com.step.sacannership.model.bean.DeliveryDetailBean;
-
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.OnClick;
 
-public class DeliveryTestActivity extends BaseActivity implements TPresenter<DeliveryBean> {
+public class DeliveryTestActivity extends BaseTActivity<DeliveryTestViewBinding> implements TPresenter<DeliveryBean> {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.edit_delivery)
-    EditText editDelivery;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.empty_view)
-    QMUIEmptyView emptyView;
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.edit_delivery)
+//    EditText editDelivery;
+//    @BindView(R.id.recycler)
+//    RecyclerView recycler;
+//    @BindView(R.id.empty_view)
+//    QMUIEmptyView emptyView;
 
     private boolean hasPallet;
 
@@ -45,8 +38,10 @@ public class DeliveryTestActivity extends BaseActivity implements TPresenter<Del
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
+
         hasPallet = getIntent().getBooleanExtra("pallet", true);
+        binding.topBar.setTitle("发运单检验");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
         setEdit();
 
 
@@ -54,22 +49,42 @@ public class DeliveryTestActivity extends BaseActivity implements TPresenter<Del
         adapter = new UnBindAdapter(this, datas);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler.setLayoutManager(manager);
+        binding.recycler.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        recycler.addItemDecoration(decoration);
-        recycler.setAdapter(adapter);
+        binding.recycler.addItemDecoration(decoration);
+        binding.recycler.setAdapter(adapter);
     }
 
     private void setEdit() {
-        editDelivery.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP) {
+        binding.editDelivery.setOnEditorActionListener((v, actionId, event) -> {
+//            if (event.getAction() == KeyEvent.ACTION_UP) {
+//                //获取发运单详情
+//                getData();
+//                editDelivery.setText("");
+//            }
+            if (!isTwice()){
                 //获取发运单详情
                 getData();
-                editDelivery.setText("");
+                binding.editDelivery.setText("");
             }
-            QMUIKeyboardHelper.hideKeyboard(editDelivery);
+            QMUIKeyboardHelper.hideKeyboard(binding.editDelivery);
             return true;
+        });
+        binding.tvSubmit.setOnClickListener(v -> {
+            if (deliveryBean == null) return;
+            new QMUIDialog.MessageDialogBuilder(this)
+                    .setMessage("发运单号："+deliveryBean.getBillNo()+"确认合格？")
+                    .addAction("取消", (qmuiDialog, i) -> qmuiDialog.dismiss())
+                    .addAction("确定", (qmuiDialog, i) -> {
+                        if (hasPallet){
+                            tModel.testpallet(deliveryBean.getBillNo(), 2, DeliveryTestActivity.this);
+                        }else {
+                            //无托盘发运单检验
+                            tModel.testUnPallet(deliveryBean.getBillNo(), DeliveryTestActivity.this);
+                        }
+                        qmuiDialog.dismiss();
+                    }).create().show();
         });
     }
 
@@ -77,7 +92,7 @@ public class DeliveryTestActivity extends BaseActivity implements TPresenter<Del
         if (tModel == null) {
             tModel = new TModel();
         }
-        String deliveryNo = editDelivery.getText().toString();
+        String deliveryNo = binding.editDelivery.getText().toString();
         if (TextUtils.isEmpty(deliveryNo)) {
             return;
         }
@@ -94,7 +109,7 @@ public class DeliveryTestActivity extends BaseActivity implements TPresenter<Del
         this.deliveryBean = deliveryBean;
         datas.clear();
         if (deliveryBean == null || deliveryBean.getSapDeliveryBillDetails().isEmpty()){
-            emptyView.show("发运单中没有物料", "");
+            binding.emptyView.show("发运单中没有物料", "");
         }else {
             List<DeliveryDetailBean> billDetails = deliveryBean.getSapDeliveryBillDetails();
             datas.addAll(billDetails);
@@ -105,34 +120,18 @@ public class DeliveryTestActivity extends BaseActivity implements TPresenter<Del
 
     @Override
     public void getFailed(String message) {
-        emptyView.show("加载失败", message);
+        binding.emptyView.show("加载失败", message);
     }
 
     @Override
     public void showDialog(String message) {
-        emptyView.show("正在加载", "");
-        emptyView.setLoadingShowing(true);
+        binding.emptyView.show("正在加载", "");
+        binding.emptyView.setLoadingShowing(true);
     }
 
     @Override
     public void dismissDialog() {
-        emptyView.hide();
+        binding.emptyView.hide();
     }
 
-    @OnClick(R.id.tv_submit)
-    public void onViewClicked() {
-        if (deliveryBean == null) return;
-        new QMUIDialog.MessageDialogBuilder(this)
-                .setMessage("发运单号："+deliveryBean.getBillNo()+"确认合格？")
-                .addAction("取消", (qmuiDialog, i) -> qmuiDialog.dismiss())
-                .addAction("确定", (qmuiDialog, i) -> {
-                    if (hasPallet){
-                        tModel.testpallet(deliveryBean.getBillNo(), 2, DeliveryTestActivity.this);
-                    }else {
-                        //无托盘发运单检验
-                        tModel.testUnPallet(deliveryBean.getBillNo(), DeliveryTestActivity.this);
-                    }
-                    qmuiDialog.dismiss();
-                }).create().show();
-    }
 }

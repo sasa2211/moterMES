@@ -9,8 +9,12 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogBuilder;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialogView;
 import com.step.sacannership.R;
 import com.step.sacannership.api.ApiManager;
 import com.step.sacannership.tools.SPTool;
@@ -23,10 +27,10 @@ public class ConfigServerDialog extends QMUIDialogBuilder<ConfigServerDialog> {
     private RadioGroup rgServer;
     private EditText editServer;
     private TextView tvSure, tvCancel;
+    @Nullable
     @Override
-    protected void onCreateContent(QMUIDialog dialog, ViewGroup parent, Context context) {
+    protected View onCreateContent(@NonNull QMUIDialog dialog, @NonNull QMUIDialogView parent, @NonNull Context context) {
         View view = LayoutInflater.from(context).inflate(R.layout.config_server_view, parent, false);
-        parent.addView(view);
 
         rgServer = view.findViewById(R.id.rgIps);
         rgServer.setOnCheckedChangeListener((group, checkedId) -> {
@@ -65,5 +69,7 @@ public class ConfigServerDialog extends QMUIDialogBuilder<ConfigServerDialog> {
 
         this.setCancelable(false);
         setCanceledOnTouchOutside(false);
+        return view;
     }
+
 }

@@ -4,21 +4,13 @@ import android.content.Intent;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import com.google.gson.Gson;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
+import com.step.sacannership.databinding.BindTrayViewBinding;
 import com.step.sacannership.listener.BindListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.listener.TrayInfoListener;
@@ -34,23 +26,21 @@ import com.step.sacannership.tools.SPTool;
 import com.step.sacannership.tools.ToastUtils;
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.OnClick;
 
-public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, TrayInfoListener, BindListener {
+public class BindTray extends BaseTActivity<BindTrayViewBinding> implements TPresenter<DeliveryBean>, TrayInfoListener, BindListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.tray_no)
-    EditText trayNo;
-    @BindView(R.id.delivery_no)
-    EditText deliveryNo;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.empty)
-    QMUIEmptyView empty;
-    @BindView(R.id.tv_number)
-    TextView tvNumber;
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.tray_no)
+//    EditText trayNo;
+//    @BindView(R.id.delivery_no)
+//    EditText deliveryNo;
+//    @BindView(R.id.recycler)
+//    RecyclerView recycler;
+//    @BindView(R.id.empty)
+//    QMUIEmptyView empty;
+//    @BindView(R.id.tv_number)
+//    TextView tvNumber;
 
     private DeliveryAdapter adapter;
     private List<TrayDeliveryBean> datas;
@@ -62,21 +52,23 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
+//        initToolBar(toolbar);
+        binding.topBar.setTitle("托盘绑定");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v-> onBackPressed());
         setEdit();
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler.setLayoutManager(manager);
+        binding.recycler.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        recycler.addItemDecoration(decoration);
+        binding.recycler.addItemDecoration(decoration);
 
-        empty.show("", "无数据");
+        binding.empty.show("", "无数据");
 
         datas = new ArrayList<>();
         adapter = new DeliveryAdapter(datas, this, 1);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
         adapter.setListener(new DeliveryAdapter.EditNumListener() {
             @Override
             public void changeNum(String deliveryNo, String materialNo, String rowIndex) {
@@ -92,7 +84,6 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
                         ToastUtils.showToast(BindTray.this, "修改位置不明确");
                         return;
                     }
-                    Log.e("TAGGG", "修改数量:"+new Gson().toJson(nos));
                     TrayDeliveryBean beanGroup = datas.get(nos[0]);
                     DeliveryBillPalletDetailsBean childBean = beanGroup.getChildAt(nos[1]);
                     double quality = childBean.getQuantity();
@@ -128,24 +119,32 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
                 startActivityForResult(intent, 10);
             }
         });
+
+        binding.btnSave.setOnClickListener(v -> {
+            if (infoBean == null) return;
+            infoBean.setDeliveryBills(datas);
+            tModel.bindTray(infoBean, false, this);
+        });
+        binding.tray.setOnClickListener(v -> scan(binding.trayNo));
+        binding.delivery.setOnClickListener(v -> scan(binding.deliveryNo));
     }
 
     private void setEdit() {
-        setOnclick(trayNo);
-        setOnclick(deliveryNo);
+        setOnclick(binding.trayNo);
+        setOnclick(binding.deliveryNo);
 
-        trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+        binding.trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                 getTrayInfo();
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
 
-        deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+        binding.deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
                 if (infoBean == null){
-                    requestFocus(trayNo);
+                    requestFocus(binding.trayNo);
                     new QMUIDialog.MessageDialogBuilder(this)
                             .setMessage("无法获取托盘信息，请重新扫描托盘号！如果托盘号为键盘输入，请不要忘记按下回车键ENT")
                             .addAction("确定", (dialog, index) -> dialog.dismiss())
@@ -154,7 +153,7 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
                 }
                 getData();
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
     }
@@ -164,7 +163,7 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
 
     public void getTrayInfo(){
         if (tModel == null) tModel = new TModel();
-        String billNO = trayNo.getText().toString().trim();
+        String billNO = binding.trayNo.getText().toString().trim();
         tModel.getTrayInfos(billNO, this);
     }
     /**
@@ -172,7 +171,7 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
      * */
     public void getData() {
         if (tModel == null) tModel = new TModel();
-        String billNO = deliveryNo.getText().toString().trim();
+        String billNO = binding.deliveryNo.getText().toString().trim();
         tModel.getDeliveryList(billNO, this);
     }
 
@@ -216,14 +215,14 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
         }
         adapter.notifyDataSetChanged();
         if (datas.size() == 0){
-            empty.setLoadingShowing(false);
-            empty.show("暂无数据", "");
+            binding.empty.setLoadingShowing(false);
+            binding.empty.show("暂无数据", "");
         }else {
-            empty.hide();
+            binding.empty.hide();
         }
 
         adapter.notifyDataSetChanged();
-        requestFocus(deliveryNo);
+        requestFocus(binding.deliveryNo);
     }
 
     TrayInfoBean infoBean;
@@ -242,7 +241,7 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
                         materialCount += detailsBean.getSnQuantity();
                     }
                 }
-                tvNumber.setText("物料总数："+materialCount);
+                binding.tvNumber.setText("物料总数："+materialCount);
             }
         }
 //        List<TrayDeliveryBean> trayDatas = infoBean.getDeliveryBills();
@@ -252,52 +251,34 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
 
         adapter.notifyDataSetChanged();
         if (datas.size() == 0){
-            empty.setLoadingShowing(false);
-            empty.show("暂无发货单数据", "");
+            binding.empty.setLoadingShowing(false);
+            binding.empty.show("暂无发货单数据", "");
         }else {
-            empty.hide();
+            binding.empty.hide();
         }
 
-        requestFocus(deliveryNo);
+        requestFocus(binding.deliveryNo);
     }
 
     @Override
     public void getTrayFailed(String message) {
-        empty.show(false, "", "托盘信息加载失败:"+message, "点击重新加载", view -> getTrayInfo());
+        binding.empty.show(false, "", "托盘信息加载失败:"+message, "点击重新加载", view -> getTrayInfo());
     }
 
     @Override
     public void getFailed(String message) {
-        empty.show(false, "", "发货单加载失败："+message, "点击重新加载", view -> getData());
+        binding.empty.show(false, "", "发货单加载失败："+message, "点击重新加载", view -> getData());
     }
 
     @Override
     public void showDialog(String message) {
-        empty.setLoadingShowing(true);
-        empty.show(message, null);
+        binding.empty.setLoadingShowing(true);
+        binding.empty.show(message, null);
     }
 
     @Override
     public void dismissDialog() {
-        empty.hide();
-    }
-
-
-    @OnClick({R.id.btn_save, R.id.tray, R.id.delivery})
-    public void onViewClicked(View view) {
-        switch (view.getId()){
-            case R.id.btn_save:
-                if (infoBean == null) return;
-                infoBean.setDeliveryBills(datas);
-                tModel.bindTray(infoBean, false, this);
-                break;
-            case R.id.tray:
-                scane(trayNo);
-                break;
-            case R.id.delivery:
-                scane(deliveryNo);
-                break;
-        }
+        binding.empty.hide();
     }
 
     @Override
@@ -338,7 +319,6 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
         if (requestCode == 10 && resultCode == 10){
             if (data != null){
                 MaterialNum materialNum = (MaterialNum) data.getSerializableExtra("materialInfos");
-                Log.e("TAGGG", "json="+new Gson().toJson(materialNum));
                 try {
                     boolean findExist = false;
                     for (TrayDeliveryBean deliveryBean : datas){
@@ -354,7 +334,6 @@ public class BindTray extends BaseActivity implements TPresenter<DeliveryBean>, 
                                 }
                             }
                         }
-
                         if (findExist){
                             break;
                         }

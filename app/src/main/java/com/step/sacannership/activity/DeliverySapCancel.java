@@ -4,11 +4,13 @@ import android.app.Dialog;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.step.sacannership.R;
+import com.step.sacannership.databinding.DeliveryCancelViewBinding;
 import com.step.sacannership.listener.CancelListener;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.tools.LoadingDialog;
@@ -16,15 +18,15 @@ import com.step.sacannership.tools.ToastUtils;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class DeliverySapCancel extends BaseActivity implements CancelListener {
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.delivery_no)
-    EditText deliveryNo;
-    private boolean hasPallet;
-    @BindView(R.id.tv_name)
-    TextView tvName;
+public class DeliverySapCancel extends BaseTActivity<DeliveryCancelViewBinding> implements CancelListener {
+//
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.delivery_no)
+//    EditText deliveryNo;
+//    @BindView(R.id.tv_name)
+//    TextView tvName;
+private boolean hasPallet;
     @Override
     protected int contentView() {
         return R.layout.delivery_cancel_view;
@@ -33,20 +35,24 @@ public class DeliverySapCancel extends BaseActivity implements CancelListener {
     @Override
     protected void initView() {
         hasPallet = getIntent().getBooleanExtra("hasPallet", true);
-        tvName.setText(hasPallet ? "托盘号" : "发运单编号");
-
-        initToolBar(toolbar);
-        deliveryNo.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP) {
+        binding.topBar.setTitle(hasPallet ? "托盘号" : "发运单编号");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
+//        initToolBar(toolbar);
+        binding.deliveryNo.setOnEditorActionListener((v, actionId, event) -> {
+//            if (event.getAction() == KeyEvent.ACTION_UP) {
+//                cancelDeliverySubmit();
+//            }
+            if (isTwice()){
                 cancelDeliverySubmit();
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+            QMUIKeyboardHelper.hideKeyboard(binding.deliveryNo);
             return true;
         });
+        binding.btnSubmit.setOnClickListener(v -> cancelDeliverySubmit());
     }
 
     private void cancelDeliverySubmit(){
-        String deliveryText = deliveryNo.getText().toString();
+        String deliveryText = binding.deliveryNo.getText().toString();
         if (TextUtils.isEmpty(deliveryText)){
             ToastUtils.showToast(this, "编号不能为空");
             return;
@@ -55,13 +61,13 @@ public class DeliverySapCancel extends BaseActivity implements CancelListener {
             tModel = new TModel();
         }
         tModel.cancelDelivery(deliveryText, hasPallet, this);
-        deliveryNo.setText("");
+        binding.deliveryNo.setText("");
     }
 
-    @OnClick(R.id.btn_submit)
-    public void onViewClicked() {
-        cancelDeliverySubmit();
-    }
+//    @OnClick(R.id.btn_submit)
+//    public void onViewClicked() {
+//        cancelDeliverySubmit();
+//    }
 
     @Override
     public void cancelSuccess(String message) {

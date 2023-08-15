@@ -1,71 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@color/white"
-        app:contentInsetStart="0dp"
-        >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="发运单检验"
-            android:gravity="center_vertical"
-            android:textSize="@dimen/dp16"
-            android:textColor="@color/black"
-            />
-    </androidx.appcompat.widget.Toolbar>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/line"
-        android:background="@color/line"
-        />
-    <EditText
-        android:id="@+id/edit_delivery"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:background="@drawable/text_bg"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:textSize="@dimen/dp14"
-        android:textColor="@color/grey5"
-        android:hint="请扫描发运单号"
-        android:gravity="center_vertical"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:imeOptions="actionSend"
-        />
-    <RelativeLayout
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        >
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler"
+        android:orientation="vertical">
+
+<!--        <androidx.appcompat.widget.Toolbar-->
+<!--            android:id="@+id/toolbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:background="@color/white"-->
+<!--            app:contentInsetStart="0dp">-->
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:text="发运单检验"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:textSize="@dimen/dp16"-->
+<!--                android:textColor="@color/black" />-->
+<!--        </androidx.appcompat.widget.Toolbar>-->
+        <com.qmuiteam.qmui.widget.QMUITopBarLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/line"
+            android:background="@color/line" />
+
+        <EditText
+            android:id="@+id/edit_delivery"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@drawable/text_bg"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textSize="@dimen/dp14"
+            android:textColor="@color/grey5"
+            android:hint="请扫描发运单号"
+            android:gravity="center_vertical"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:imeOptions="actionSend" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            />
-        <com.qmuiteam.qmui.widget.QMUIEmptyView
-            android:id="@+id/empty_view"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.qmuiteam.qmui.widget.QMUIEmptyView
+                android:id="@+id/empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_submit"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </RelativeLayout>
-    <TextView
-        android:id="@+id/tv_submit"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/bind_btn_bg"
-        android:gravity="center"
-        android:text="合格"
-        android:textSize="@dimen/dp16"
-        android:textColor="@color/white"
-        />
-</LinearLayout>
+            android:layout_height="40dp"
+            android:background="@drawable/bind_btn_bg"
+            android:gravity="center"
+            android:text="合格"
+            android:textSize="@dimen/dp16"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</layout>

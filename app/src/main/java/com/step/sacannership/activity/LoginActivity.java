@@ -7,21 +7,15 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUILoadingView;
-import com.qmuiteam.qmui.widget.QMUIProgressBar;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.BuildConfig;
 import com.step.sacannership.MainActivity;
 import com.step.sacannership.R;
+import com.step.sacannership.databinding.LoginViewBinding;
 import com.step.sacannership.fragment.ConfigServerDialog;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
@@ -34,27 +28,10 @@ import com.step.sacannership.update.UpdateBean;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.OnClick;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.edit_account)
-    EditText editAccount;
-    @BindView(R.id.edit_password)
-    EditText editPassword;
-    @BindView(R.id.loading)
-    QMUILoadingView loadingView;
-    @BindView(R.id.img_logo)
-    ImageView imgLogo;
-    @BindView(R.id.tv_progress)
-    TextView tvProgress;
-    @BindView(R.id.progress_bar)
-    QMUIProgressBar progressBar;
+public class LoginActivity extends BaseTActivity<LoginViewBinding> implements TPresenter<UserBean>{
 
     @Override
     protected int contentView() {
@@ -63,23 +40,23 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
 
     @Override
     protected void initView() {
-        setOnclick(editAccount);
-        setOnclick(editPassword);
+        setOnclick(binding.editAccount);
+        setOnclick(binding.editPassword);
 
-        requestFocus(editAccount);
-        initToolBar(toolbar);
-        imgLogo.setImageResource(R.mipmap.logo);
-        editAccount.setOnEditorActionListener((textView, i, keyEvent) -> {
+        requestFocus(binding.editAccount);
+        initToolBar(binding.toolbar);
+
+        binding.editAccount.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP){
-                requestFocus(editPassword);
+                requestFocus(binding.editPassword);
             }
             return true;
         });
-        editPassword.setOnEditorActionListener((textView, i, keyEvent) -> {
+        binding.editPassword.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP){
                 login();
             }
-            QMUIKeyboardHelper.hideKeyboard(editPassword);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
         boolean isClear = getIntent().getBooleanExtra("clear", false);
@@ -94,6 +71,13 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             requestPermision();
         }
+
+        binding.btnLogin.setOnClickListener(v -> login());
+        binding.tvServer.setOnClickListener(v -> {
+            ConfigServerDialog serverDialog = new ConfigServerDialog(this);
+            serverDialog.create().show();
+        });
+        binding.btnUpdate.setOnClickListener(v -> checkUpdate());
     }
 
     public void requestPermision(){
@@ -129,50 +113,10 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
         }
     }
 
-    @OnClick({R.id.btn_login, R.id.tv_server, R.id.btn_update})
-    public void onViewClicked(View view) {
-        switch (view.getId()){
-            case R.id.btn_login:
-                login();
-                break;
-            case R.id.tv_server:
-//                QMUIDialog.EditTextDialogBuilder builder = new QMUIDialog.EditTextDialogBuilder(this);
-//                builder.setTitle("配置服务器地址").setPlaceholder(SPTool.getServer());
-//                builder.addAction("取消", (dialog, index) -> dialog.dismiss());
-//                builder.addAction("确定", (dialog, index) -> {
-//                    StringBuilder sb = new StringBuilder();
-//                    EditText editText = builder.getEditText();
-//                    String text = editText.getText().toString().trim();
-//                    if (!TextUtils.isEmpty(text)){
-//                        if (!text.startsWith("http://")){
-//                            sb.append("http://");
-//                        }
-//                        sb.append(text);
-//                        if (!text.endsWith("/")){
-//                            sb.append("/");
-//                        }
-//                    }else {
-//                        sb.append("http://192.168.50.3:8080/");
-//                    }
-//                    SPTool.put(LoginActivity.this, SPTool.Server, sb.toString().trim());
-//                    ApiManager.refreshRetrofit();
-//                    dialog.dismiss();
-//                });
-//                builder.create().show();
-
-                ConfigServerDialog serverDialog = new ConfigServerDialog(this);
-                serverDialog.create().show();
-                break;
-            case R.id.btn_update:
-                checkUpdate();
-                break;
-        }
-    }
-
     private void login(){
         if (tModel == null) tModel = new TModel();
-        String name = editAccount.getText().toString();
-        String password = editPassword.getText().toString();
+        String name = binding.editAccount.getText().toString();
+        String password = binding.editPassword.getText().toString();
         tModel.login(name, password, this);
     }
 
@@ -264,9 +208,6 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
 
     @Override
     public void getSuccess(UserBean userBean) {
-
-        Log.e("TAGGG", "token="+userBean.getToken());
-
         SPTool.putToken(userBean.getToken());
         SPTool.putAuthority(userBean.getUserAuthority());
         startActivity(new Intent(this, MainActivity.class));
@@ -281,14 +222,13 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
 
     @Override
     public void showDialog(String message) {
-        loadingView.setVisibility(View.VISIBLE);
+        binding.loading.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void dismissDialog() {
-        loadingView.setVisibility(View.GONE);
+        binding.loading.setVisibility(View.GONE);
     }
-
 
     private void showMessage(String message, boolean showDownload, String ...filePath){
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this).setMessage(message);
@@ -296,5 +236,4 @@ public class LoginActivity extends BaseActivity implements TPresenter<UserBean>{
         builder.addAction("确定", (dialog, index) -> dialog.dismiss());
         builder.create().show();
     }
-
 }

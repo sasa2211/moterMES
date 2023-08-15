@@ -8,8 +8,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-//        MyCrashHandler crashHandler = MyCrashHandler.instance();
-//        crashHandler.init(getApplicationContext());
     }
 
     public static App getInstance() {

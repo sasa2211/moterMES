@@ -1,11 +1,18 @@
 package com.step.wms
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+import com.step.wms.activity.BaseKtActivity
+import com.step.wms.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+class MainActivity : BaseKtActivity<ActivityMainBinding>() {
+    override fun layoutId(): Int {
+        return R.layout.activity_main
+    }
+
+    override fun initView() {
+        binding.tvName.text = "this is test project"
+    }
+
+    suspend fun login(x: String): String {
+        return ""
     }
 }

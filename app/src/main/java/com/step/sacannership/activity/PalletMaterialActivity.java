@@ -1,22 +1,16 @@
 package com.step.sacannership.activity;
 
 import android.content.Intent;
-
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
+import com.step.sacannership.databinding.PalletMaterialViewBinding;
 import com.step.sacannership.fragment.ExportSnDialog;
 import com.step.sacannership.listener.BindListener;
 import com.step.sacannership.listener.OnTextChangeListener;
@@ -36,30 +30,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import butterknife.BindView;
-import butterknife.OnClick;
 
-public class PalletMaterialActivity extends BaseActivity implements TrayInfoListener,
+public class PalletMaterialActivity extends BaseTActivity<PalletMaterialViewBinding> implements TrayInfoListener,
         TPresenter<DeliveryBean>, SyncCodeListener, BindListener {
 
-    @BindView(R.id.topBar)
-    QMUITopBarLayout topBarLayout;
-    @BindView(R.id.pallet_no)
-    EditText editPallet;
-    @BindView(R.id.delivery_no)
-    EditText editDelivery;
-    @BindView(R.id.material_no)
-    EditText editMaterial;
-    @BindView(R.id.tv_loading)
-    TextView tvLoading;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.ln_pallet)
-    LinearLayout lnPallet;
-    @BindView(R.id.tv_number)
-    TextView tvNumber;
-    @BindView(R.id.tv_delivery_number)
-    TextView tvDeliveryNumber;
+//    @BindView(R.id.topBar)
+//    QMUITopBarLayout topBarLayout;
+//    @BindView(R.id.pallet_no)
+//    EditText editPallet;
+//    @BindView(R.id.delivery_no)
+//    EditText editDelivery;
+//    @BindView(R.id.material_no)
+//    EditText editMaterial;
+//
+//    @BindView(R.id.recycler)
+//    RecyclerView recycler;
+//    @BindView(R.id.ln_pallet)
+//    LinearLayout lnPallet;
+//    @BindView(R.id.tv_number)
+//    TextView tvNumber;
+//    @BindView(R.id.tv_delivery_number)
+//    TextView tvDeliveryNumber;
+//    @BindView(R.id.loading)
+//    QMUILoadingView loadingView;
+//    @BindView(R.id.tv_loading)
+//    TextView tvLoading;
     private boolean hasPallet;
 
     private boolean hasChange = false;
@@ -75,24 +70,24 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
     @Override
     protected void initView() {
         Intent intent = getIntent();
-        topBarLayout.addLeftBackImageButton().setOnClickListener(v -> onBackPressed());
-        topBarLayout.setTitle(intent.getStringExtra("title"));
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v -> onBackPressed());
+        binding.topBar.setTitle(intent.getStringExtra("title"));
         hasPallet = intent.getBooleanExtra("hasPallet", false);
 
-        lnPallet.setVisibility(hasPallet ? View.VISIBLE : View.GONE);
+        binding.lnPallet.setVisibility(hasPallet ? View.VISIBLE : View.GONE);
 
         setEdit();
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler.setLayoutManager(manager);
+        binding.recycler.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        recycler.addItemDecoration(decoration);
+        binding.recycler.addItemDecoration(decoration);
 
         datas = new ArrayList<>();
         adapter = new DeliveryAdapter(datas, this, 1);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
 
         adapter.setListener(new DeliveryAdapter.EditNumListener() {
             @Override
@@ -149,17 +144,17 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
     }
 
     private void setEdit(){
-        editPallet.setOnEditorActionListener((v, actionId, event) -> {
+        binding.palletNo.setOnEditorActionListener((v, actionId, event) -> {
 //            if (event.getAction() == KeyEvent.ACTION_UP){
 //                getPalletInfo(false);
 //                QMUIKeyboardHelper.hideKeyboard(editPallet);
 //            }
             getPalletInfo(false);
-            QMUIKeyboardHelper.hideKeyboard(editPallet);
+            QMUIKeyboardHelper.hideKeyboard(v);
             return true;
         });
 
-        editDelivery.setOnEditorActionListener((v, actionId, event) -> {
+        binding.deliveryNo.setOnEditorActionListener((v, actionId, event) -> {
 //            if (event.getAction() == KeyEvent.ACTION_UP){
 //                if (hasPallet){
 //                    searchDelivery();
@@ -168,22 +163,22 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
 //            }
             if (hasPallet){
                 searchDelivery();
-                QMUIKeyboardHelper.hideKeyboard(editPallet);
+                QMUIKeyboardHelper.hideKeyboard(v);
             }
             return true;
         });
 
-        editMaterial.addTextChangedListener(new OnTextChangeListener(){
+        binding.materialNo.addTextChangedListener(new OnTextChangeListener(){
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 super.onTextChanged(s, start, before, count);
                 if(count == 1){
-                    editMaterial.setText("");
+                    binding.materialNo.setText("");
                 }
             }
         });
 
-        editMaterial.setOnEditorActionListener((v, actionId, event) -> {
+        binding.materialNo.setOnEditorActionListener((v, actionId, event) -> {
 //            if (event.getAction() == KeyEvent.ACTION_UP){
 //                binding();
 //                hasChange = true;
@@ -191,15 +186,16 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
 //            }
             binding();
             hasChange = true;
-            QMUIKeyboardHelper.hideKeyboard(editPallet);
+            QMUIKeyboardHelper.hideKeyboard(v);
             return true;
         });
 
         if (hasPallet){
-            requestFocus(editPallet);
+            requestFocus(binding.palletNo);
         }else {
-            requestFocus(editDelivery);
+            requestFocus(binding.deliveryNo);
         }
+        binding.tvSave.setOnClickListener(v-> saveBind(false));
     }
     /**
      * 从列表中查发货单
@@ -216,7 +212,7 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
             return;
         }
         boolean hasDelivery = false;
-        String editDeliveryText = editDelivery.getText().toString().trim();
+        String editDeliveryText = binding.deliveryNo.getText().toString().trim();
         for (TrayDeliveryBean deliveryBean : datas){
             if (editDeliveryText.equals(deliveryBean.getDeliveryBillNO())){
                 hasDelivery = true;
@@ -225,7 +221,7 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
         }
         if (hasDelivery){
             createMediaPlayer(R.raw.success);
-            requestFocus(editMaterial);
+            requestFocus(binding.materialNo);
         }else {
             //获取发货单详情，绑定到托盘
             if (tModel == null) tModel = new TModel();
@@ -241,7 +237,7 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
             return;
         }
         if (tModel == null) tModel = new TModel();
-        String billNO = editPallet.getText().toString().trim();
+        String billNO = binding.palletNo.getText().toString().trim();
         if (TextUtils.isEmpty(billNO)){
             ToastUtils.showToast(this, "请扫描托盘条码");
             createMediaPlayer(R.raw.failed);
@@ -263,7 +259,7 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
         }
         Map<String, Object> map= new HashMap<String, Object>();
         map.put("palletID", infoBean.getPalletId());
-        String deliveryNo = editDelivery.getText().toString().trim();
+        String deliveryNo = binding.deliveryNo.getText().toString().trim();
         if (TextUtils.isEmpty(deliveryNo)){
             ToastUtils.showToast(this, "请扫描发货单条码");
             return;
@@ -276,24 +272,45 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
             }
         }
 
-        String materialNo = editMaterial.getText().toString().trim();
+        String materialNo = binding.materialNo.getText().toString().trim();
         if (TextUtils.isEmpty(materialNo)){
             ToastUtils.showToast(this, "请扫描物料条码");
             return;
         }
 
         map.put("materialBarcode", materialNo);
-        tModel.bindMaterialNo(map, this);
+        tModel.bindMaterialNo(map, new TPresenter<BindResultBean>() {
+            @Override
+            public void getSuccess(BindResultBean bean) {
+                bindMaterialSuccess(bean);
+            }
+
+            @Override
+            public void getFailed(String message) {
+                bindMaterialFail(message);
+            }
+
+            @Override
+            public void showDialog(String message) {
+                PalletMaterialActivity.this.showDialog(message);
+            }
+
+            @Override
+            public void dismissDialog() {
+                PalletMaterialActivity.this.dismissDialog();
+            }
+        });
     }
 
-    @OnClick({R.id.tv_save})
-    public void onViewClick(View view){
-        switch (view.getId()){
-            case R.id.tv_save:
-                saveBind(false);
-                break;
-        }
-    }
+//    @OnClick({R.id.tv_save})
+//    public void onViewClick(View view){
+//        switch (view.getId()){
+//            case R.id.tv_save:
+//                saveBind(false);
+//                break;
+//        }
+//
+//    }
 
     private void saveBind(boolean exit){
         hasChange = false;
@@ -320,39 +337,46 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
         }
         adapter.notifyDataSetChanged();
         if (datas.size() == 0){
-            tvLoading.setText("暂无发货单数据");
+            binding.tvLoading.setText("暂无发货单数据");
         }else {
-            tvLoading.setText("");
+            binding.tvLoading.setText("");
         }
-        if (TextUtils.isEmpty(editDelivery.getText().toString().trim())){
-            requestFocus(editDelivery);
+        if (TextUtils.isEmpty(binding.deliveryNo.getText().toString().trim())){
+            requestFocus(binding.deliveryNo);
         }else {
-            requestFocus(editMaterial);
+            requestFocus(binding.materialNo);
         }
-        tvDeliveryNumber.setText("发货单数量："+datas.size());
+        binding.tvDeliveryNumber.setText("发货单数量："+datas.size());
         createMediaPlayer(R.raw.success);
     }
 
     @Override
     public void getTrayFailed(String message) {
-        tvLoading.setText("托盘信息加载失败:"+message);
-        String deliveryNo = editDelivery.getText().toString().trim();
+        binding.tvLoading.setText("托盘信息加载失败:"+message);
+        String deliveryNo = binding.deliveryNo.getText().toString().trim();
         if (TextUtils.isEmpty(deliveryNo)){
-            requestFocus(editPallet);
+            requestFocus(binding.palletNo);
         }else {
-            requestFocus(editDelivery);
+            requestFocus(binding.deliveryNo);
         }
         createMediaPlayer(R.raw.failed);
     }
 
     @Override
     public void showDialog(String message) {
-        runOnUiThread(() -> tvLoading.setText(message));
+
+        runOnUiThread(() -> {
+            binding.loading.setVisibility(View.VISIBLE);
+            binding.tvLoading.setText(message);
+        });
     }
 
     @Override
     public void dismissDialog() {
-        runOnUiThread(() -> tvLoading.setText(""));
+        runOnUiThread(() -> {
+            binding.loading.setVisibility(View.GONE);
+            binding.tvLoading.setText("");
+        });
     }
 
     @Override
@@ -375,15 +399,15 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
 
     @Override
     public void syncFail(String message) {
-        editDelivery.setText("");
-        editMaterial.setText("");
-        requestFocus(editDelivery);
+        binding.deliveryNo.setText("");
+        binding.materialNo.setText("");
+        requestFocus(binding.deliveryNo);
         SPTool.showToast(this, message);
     }
 
     @Override
     public void getSnNumSuccess(Integer snNum) {
-        runOnUiThread(() -> tvNumber.setText(String.valueOf(snNum)));
+        runOnUiThread(() -> binding.tvNumber.setText(String.valueOf(snNum)));
     }
 
     @Override
@@ -405,7 +429,6 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
                                 }
                             }
                         }
-
                         if (findExist){
                             break;
                         }
@@ -424,9 +447,9 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
     public void bindMaterialSuccess(BindResultBean map) {
         int resultCode = map.getResultCode();
         if (resultCode == 0){
-            tvLoading.setText("绑定成功");
-            editMaterial.setText("");
-            requestFocus(editDelivery);
+            binding.tvLoading.setText("绑定成功");
+            binding.materialNo.setText("");
+            requestFocus(binding.deliveryNo);
 
             String materialNo = map.getMaterialNo();
             int deliveryBillID = map.getDeliveryBillID();
@@ -446,12 +469,12 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
             }
             int snNum = 0;
             try {
-                snNum = Integer.parseInt(tvNumber.getText().toString().trim());
+                snNum = Integer.parseInt(binding.tvNumber.getText().toString().trim());
             }catch (Exception e){
                 e.printStackTrace();
             }
             snNum += 1;
-            tvNumber.setText(String.valueOf(snNum));
+            binding.tvNumber.setText(String.valueOf(snNum));
             adapter.notifyDataSetChanged();
             createMediaPlayer(R.raw.success);
         }else {
@@ -468,7 +491,7 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
                     .addAction("关闭", (dialog, index) -> dialog.dismiss());
             if (resultCode == 2){
                 builder.addAction("导入", (dialog, index) -> {
-                    String materialCode = editMaterial.getText().toString().trim();
+                    String materialCode = binding.materialNo.getText().toString().trim();
                     if (TextUtils.isEmpty(materialCode)){
                         return;
                     }
@@ -485,9 +508,9 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
                         }
                         @Override
                         public void importFail() {
-                            editDelivery.setText("");
-                            editMaterial.setText("");
-                            requestFocus(editDelivery);
+                            binding.deliveryNo.setText("");
+                            binding.materialNo.setText("");
+                            requestFocus(binding.deliveryNo);
                             exportSnDialog.dismiss();
                             if (messageDialog != null && messageDialog.isShowing()){
                                 messageDialog.dismiss();
@@ -498,15 +521,15 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
                 })
                 .addAction("更新", (dialog, index) -> {
                     if (tModel == null) tModel = new TModel();
-                    String materialCode = editMaterial.getText().toString().trim();
+                    String materialCode = binding.materialNo.getText().toString().trim();
                     tModel.syncBarcode(materialCode, PalletMaterialActivity.this);
                 });
             }
             messageDialog = builder.create();
             
             messageDialog.setOnDismissListener(dialog -> {
-                requestFocus(editMaterial);
-                editMaterial.setText("");
+                requestFocus(binding.materialNo);
+                binding.materialNo.setText("");
             });
             messageDialog.show();
         }
@@ -516,9 +539,9 @@ public class PalletMaterialActivity extends BaseActivity implements TrayInfoList
 
     @Override
     public void bindMaterialFail(String message) {
-        tvLoading.setText(message);
-        editMaterial.setText("");
-        requestFocus(editDelivery);
+        binding.tvLoading.setText(message);
+        binding.materialNo.setText("");
+        requestFocus(binding.deliveryNo);
         new QMUIDialog.MessageDialogBuilder(this)
             .setTitle("绑定失败")
             .setMessage("提示："+message)

@@ -1,19 +1,16 @@
 package com.step.sacannership.activity;
 
 import android.content.Intent;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.step.sacannership.R;
+import com.step.sacannership.databinding.BindMaterialViewBinding;
 import com.step.sacannership.listener.BindMaterialView;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
@@ -25,23 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.OnClick;
-
-public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDeliveryMaterialBean>>, BindMaterialView {
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.delivery_no)
-    EditText deliveryNo;
-//    @BindView(R.id.material_no)
-//    EditText materialNo;
-    @BindView(R.id.empty)
-    QMUIEmptyView emptyView;
-    @BindView(R.id.listView)
-    ListView listView;
-    @BindView(R.id.tv_material)
-    TextView tvMaterial;
+public class BindMaterial extends BaseTActivity<BindMaterialViewBinding> implements TPresenter<List<ScanDeliveryMaterialBean>>, BindMaterialView {
 
     private TModel tModel;
     private List<ScanDeliveryMaterialBean> datas;
@@ -62,54 +43,42 @@ public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDe
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
+        binding.topBar.setTitle("发货单物料绑定");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
         setEdit();
 
-        emptyView.show("暂无数据", "");
+        binding.empty.show("暂无数据", "");
         datas = new ArrayList<>();
         adapter = new MaterialAdapter();
-        listView.setAdapter(adapter);
+        binding.listView.setAdapter(adapter);
 
         billNo = getIntent().getStringExtra("billNo");
         billID = getIntent().getIntExtra("billID", -1);
-//        index = getIntent().getIntExtra("index", 0);
         palletID = getIntent().getIntExtra("palletID", -1);
         materialNO = getIntent().getStringExtra("materialNO");
         rowIndex = getIntent().getStringExtra("rowIndex");
         hasPallet = getIntent().getBooleanExtra("hasPallet", true);
         if (!TextUtils.isEmpty(billNo)){
-            deliveryNo.setText(materialNO);
-            deliveryNo.setFocusable(false);
-//            requestFocus(materialNo);
+            binding.deliveryNo.setText(materialNO);
+            binding.deliveryNo.setFocusable(false);
             getDeliveryMaterialList();
         }else {
-            deliveryNo.setFocusable(true);
-            requestFocus(deliveryNo);
-            setOnclick(deliveryNo);
+            binding.deliveryNo.setFocusable(true);
+            requestFocus(binding.deliveryNo);
+            setOnclick(binding.deliveryNo);
         }
+
+        binding.refresh.setOnClickListener(v -> getDeliveryMaterialList());
     }
 
     private void setEdit() {
-        deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+        binding.deliveryNo.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
                 getDeliveryMaterialList();
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
-//        materialNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-//            if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
-//                bindMaterial();
-//            }
-//            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
-//            return true;
-//        });
-    }
-
-
-    @OnClick(R.id.refresh)
-    public void onViewClicked() {
-        getDeliveryMaterialList();
     }
 
     public void getDeliveryMaterialList() {
@@ -117,7 +86,7 @@ public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDe
         datas.clear();
         adapter.notifyDataSetChanged();
 
-        String deliveryText = deliveryNo.getText().toString().trim();
+        String deliveryText = binding.deliveryNo.getText().toString().trim();
         if (TextUtils.isEmpty(deliveryText)) {
             SPTool.showToast(this, "发运单号不能为空");
             return;
@@ -129,43 +98,40 @@ public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDe
         tModel.getMaterialList(hasPallet, palletID, materialNO, billNo, rowIndex, this);
     }
 
-//    DeliveryMaterial deliveryBean;
     @Override
     public void getSuccess(List<ScanDeliveryMaterialBean> list) {
         if (list.isEmpty()) {
-            emptyView.show("暂无数据", "");
+            binding.empty.show("暂无数据", "");
             return;
         }
-//        requestFocus(materialNo);
-
         datas.addAll(list);
         adapter.notifyDataSetChanged();
         if (datas.isEmpty()) {
-            emptyView.setLoadingShowing(false);
-            emptyView.show("暂无数据", "");
+            binding.empty.setLoadingShowing(false);
+            binding.empty.show("暂无数据", "");
         }
-        tvMaterial.setText("物料列表（数量"+datas.size()+"）");
+        binding.tvMaterial.setText("物料列表（数量"+datas.size()+"）");
         createMediaPlayer(R.raw.success);
     }
 
     @Override
     public void getFailed(String message) {
-        emptyView.show(false, "加载失败", message, "重新加载", view -> getDeliveryMaterialList());
+        binding.empty.show(false, "加载失败", message, "重新加载", view -> getDeliveryMaterialList());
         createMediaPlayer(R.raw.success);
     }
 
     @Override
     public void showDialog(String message) {
         if ("1".equals(message)) {
-            emptyView.setLoadingShowing(true);
-            emptyView.show("加载中", "");
+            binding.empty.setLoadingShowing(true);
+            binding.empty.show("加载中", "");
         }
     }
 
     @Override
     public void dismissDialog() {
-        if (emptyView.isShowing()) {
-            emptyView.hide();
+        if (binding.empty.isShowing()) {
+            binding.empty.hide();
         }
     }
 
@@ -192,10 +158,10 @@ public class BindMaterial extends BaseActivity implements TPresenter<List<ScanDe
             adapter.notifyDataSetChanged();
         }
         if (datas.isEmpty()){
-            emptyView.show("暂无数据", "");
+            binding.empty.show("暂无数据", "");
         }
         deletePosition = -1;
-        tvMaterial.setText("物料列表（数量"+datas.size()+"）");
+        binding.tvMaterial.setText("物料列表（数量"+datas.size()+"）");
     }
 
     @Override

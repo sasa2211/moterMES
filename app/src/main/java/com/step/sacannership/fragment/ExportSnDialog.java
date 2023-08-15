@@ -9,10 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.QMUILoadingView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogBuilder;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialogView;
 import com.step.sacannership.R;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
@@ -40,8 +45,9 @@ public class ExportSnDialog extends QMUIDialogBuilder implements View.OnClickLis
     private QMUILoadingView loadingView;
 
     private TextView tvProgress;
+    @Nullable
     @Override
-    protected void onCreateContent(QMUIDialog dialog, ViewGroup parent, Context context) {
+    protected View onCreateContent(@NonNull QMUIDialog dialog, @NonNull QMUIDialogView parent, @NonNull Context context) {
         View view = LayoutInflater.from(context).inflate(R.layout.export_sn_view, parent, false);
         parent.addView(view);
         tvMaterialNo = view.findViewById(R.id.tv_material);
@@ -60,7 +66,9 @@ public class ExportSnDialog extends QMUIDialogBuilder implements View.OnClickLis
             return true;
         });
         loadingView = view.findViewById(R.id.loading);
+        return view;
     }
+
 
     @Override
     public void onClick(View v) {
@@ -116,6 +124,8 @@ public class ExportSnDialog extends QMUIDialogBuilder implements View.OnClickLis
     public void dismiss(){
         mDialog.dismiss();
     }
+
+
 
     public interface ImportListener{
         void importSuccess();

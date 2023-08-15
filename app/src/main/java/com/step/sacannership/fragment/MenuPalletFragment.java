@@ -224,7 +224,7 @@ public class MenuPalletFragment extends Fragment {
                 datas.add(menuItem);
             }
 
-            if ("1".equals(authority.substring(386, 387)) || BuildConfig.DEBUG) {//SAP更新(检验)
+            if ("1".equals(authority.substring(386, 387))) {//SAP更新(检验)
                 menuItem = new MenuItem("退货机器解绑", "back_unBind");
                 datas.add(menuItem);
             }

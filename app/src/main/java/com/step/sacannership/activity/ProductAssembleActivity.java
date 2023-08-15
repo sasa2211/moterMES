@@ -4,23 +4,17 @@ import android.content.Intent;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.EditText;
-import android.widget.TextView;
-
 import com.google.gson.Gson;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
-import com.qmuiteam.qmui.widget.QMUIEmptyView;
-import com.qmuiteam.qmui.widget.QMUITopBarLayout;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
-import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.ProductAssembleAdapter;
+import com.step.sacannership.databinding.ProductAssembleViewBinding;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
 import com.step.sacannership.model.bean.AssembleDeleteBean;
@@ -30,40 +24,39 @@ import com.step.sacannership.model.bean.ProductItem;
 import com.step.sacannership.model.bean.Request;
 import com.step.sacannership.tools.ToastUtils;
 import java.util.List;
-import butterknife.BindView;
 import okhttp3.ResponseBody;
 
-public class ProductAssembleActivity extends BaseActivity implements TPresenter<List<ProductItem>> {
-    @BindView(R.id.topBar)
-    QMUITopBarLayout topBar;
-    @BindView(R.id.tvBatch)
-    TextView tvBatch;
-    @BindView(R.id.tvOrder)
-    TextView tvOrder;
-    @BindView(R.id.materialNo)
-    TextView tvMaterialNo;
-    @BindView(R.id.tvLine)
-    TextView tvLine;
-    @BindView(R.id.tvStation)
-    TextView tvStation;
-    @BindView(R.id.materialDesc)
-    TextView materialDesc;
-    @BindView(R.id.count)
-    TextView count;
-    @BindView(R.id.binded)
-    TextView binded;
-    @BindView(R.id.unBind)
-    TextView unBind;
-    @BindView(R.id.refresh)
-    SmartRefreshLayout refresh;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.empty_view)
-    QMUIEmptyView emptyView;
-    @BindView(R.id.tvSet)
-    TextView tvSet;
-    @BindView(R.id.editSnScan)
-    EditText editSnScan;
+public class ProductAssembleActivity extends BaseTActivity<ProductAssembleViewBinding> implements TPresenter<List<ProductItem>> {
+//    @BindView(R.id.topBar)
+//    QMUITopBarLayout topBar;
+//    @BindView(R.id.tvBatch)
+//    TextView tvBatch;
+//    @BindView(R.id.tvOrder)
+//    TextView tvOrder;
+//    @BindView(R.id.materialNo)
+//    TextView tvMaterialNo;
+//    @BindView(R.id.tvLine)
+//    TextView tvLine;
+//    @BindView(R.id.tvStation)
+//    TextView tvStation;
+//    @BindView(R.id.materialDesc)
+//    TextView materialDesc;
+//    @BindView(R.id.count)
+//    TextView count;
+//    @BindView(R.id.binded)
+//    TextView binded;
+//    @BindView(R.id.unBind)
+//    TextView unBind;
+//    @BindView(R.id.refresh)
+//    SmartRefreshLayout refresh;
+//    @BindView(R.id.recycler)
+//    RecyclerView recycler;
+//    @BindView(R.id.empty_view)
+//    QMUIEmptyView emptyView;
+//    @BindView(R.id.tvSet)
+//    TextView tvSet;
+//    @BindView(R.id.editSnScan)
+//    EditText editSnScan;
 
     private final ProductHeader header = new ProductHeader();
 
@@ -75,16 +68,16 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
 
     @Override
     protected void initView() {
-        topBar.setTitle("产品组装扫描");
-        topBar.addLeftBackImageButton().setOnClickListener(v-> onBackPressed());
+        binding.topBar.setTitle("产品组装扫描");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v-> onBackPressed());
 
-        refresh.setRefreshFooter(new ClassicsFooter(this));
-        refresh.setRefreshHeader(new ClassicsHeader(this));
-        recycler.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        recycler.setAdapter(adapter);
+        binding.refresh.setRefreshFooter(new ClassicsFooter(this));
+        binding.refresh.setRefreshHeader(new ClassicsHeader(this));
+        binding.recycler.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        binding.recycler.setAdapter(adapter);
 
-        refresh.setOnRefreshListener(ref -> getData(true));
-        refresh.setOnLoadmoreListener(ref -> getData(false));
+        binding.refresh.setOnRefreshListener(ref -> getData(true));
+        binding.refresh.setOnLoadmoreListener(ref -> getData(false));
 
         adapter.setItemClick(position -> {
             ProductItem item = adapter.getItem(position);
@@ -99,7 +92,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
                 .create().show();
         });
 
-        tvSet.setOnClickListener(v->{
+        binding.tvSet.setOnClickListener(v->{
             Intent intent = new Intent(this, ProductAssembleSetActivity.class);
             String orderNo = header.getProductOrder();
             if (!TextUtils.isEmpty(orderNo)){
@@ -110,7 +103,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
         tModel = new TModel();
         setHeader();
 
-        editSnScan.setOnEditorActionListener((v, actionId, event) -> {
+        binding.editSnScan.setOnEditorActionListener((v, actionId, event) -> {
 //            if (event.getAction() == KeyEvent.ACTION_UP){
 //                submit();
 //            }
@@ -123,15 +116,15 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
     }
 
     private void setHeader(){
-        tvBatch.setText("生产批次:" + header.getBatchStr());
-        tvOrder.setText("生产订单:" + header.getProductOrder());
-        tvMaterialNo.setText("物料编号:" + header.getMaterialNo());
-        tvLine.setText("线别名称:" + header.getLineNo());
-        tvStation.setText("站点名称:" + header.getStationPort());
-        materialDesc.setText("物料描述:" + header.getMaterialDesc());
-        count.setText("批次总量:" + header.getCount());
-        binded.setText("已扫数量:" + header.getScanNo());
-        unBind.setText("未扫数量:" + header.getUnScanNo());
+        binding.tvBatch.setText("生产批次:" + header.getBatchStr());
+        binding.tvOrder.setText("生产订单:" + header.getProductOrder());
+        binding.materialNo.setText("物料编号:" + header.getMaterialNo());
+        binding.tvLine.setText("线别名称:" + header.getLineNo());
+        binding.tvStation.setText("站点名称:" + header.getStationPort());
+        binding.materialDesc.setText("物料描述:" + header.getMaterialDesc());
+        binding.count.setText("批次总量:" + header.getCount());
+        binding.binded.setText("已扫数量:" + header.getScanNo());
+        binding.unBind.setText("未扫数量:" + header.getUnScanNo());
     }
 
     private final Request request = new Request();
@@ -153,8 +146,8 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
 
     @Override
     public void dismissDialog() {
-        refresh.finishRefresh();
-        refresh.finishLoadmore();
+        binding.refresh.finishRefresh();
+        binding.refresh.finishLoadmore();
     }
 
     @Override
@@ -165,11 +158,11 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
         }
         request.put("pageNum", pageNum + 1);
         adapter.addItems(productItems);
-        refresh.setEnableLoadmore(productItems.size() == 10);
+        binding.refresh.setEnableLoadmore(productItems.size() == 10);
         if (adapter.getItemCount() == 0){
-            emptyView.show("", "暂无数据");
+            binding.emptyView.show("", "暂无数据");
         }else {
-            emptyView.hide();
+            binding.emptyView.hide();
         }
         createMediaPlayer(R.raw.success);
     }
@@ -177,7 +170,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
     @Override
     public void getFailed(String message) {
         if (adapter.getItemCount() == 0){
-            emptyView.show("", "加载失败："+message);
+            binding.emptyView.show("", "加载失败："+message);
         }else {
             ToastUtils.showToast(this, message);
         }
@@ -195,7 +188,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
                 setHeader();
                 request.put("orderId", bean.getHeadrId());
                 request.put("stationId", bean.getStatueId());
-                refresh.autoRefresh();
+                binding.refresh.autoRefresh();
                 getStationCount();
                 getScannedNum();
             }
@@ -279,7 +272,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
     }
 
     private void submit(){
-        String sn = editSnScan.getText().toString().trim();
+        String sn = binding.editSnScan.getText().toString().trim();
         if (TextUtils.isEmpty(sn)){
             ToastUtils.showToast(this, "序列号不能为空");
             return;
@@ -302,7 +295,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
                 header.setUnScanNo(count - scanNo);
 
                 setHeader();
-                requestFocus(editSnScan);
+                requestFocus(binding.editSnScan);
                 createMediaPlayer(R.raw.success);
             }
 
@@ -312,7 +305,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
                         .setMessage("提交失败：" + message)
                         .addAction("确定", (dialog, index) -> dialog.dismiss())
                         .create().show();
-                requestFocus(editSnScan);
+                requestFocus(binding.editSnScan);
                 createMediaPlayer(R.raw.failed);
             }
 
@@ -344,7 +337,7 @@ public class ProductAssembleActivity extends BaseActivity implements TPresenter<
                 header.setScanNo(scanNo);
                 int count = header.getCount();
                 header.setUnScanNo(count - scanNo);
-                requestFocus(editSnScan);
+                requestFocus(binding.editSnScan);
                 setHeader();
                 adapter.removeItem(position);
                 createMediaPlayer(R.raw.success);

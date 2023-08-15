@@ -6,13 +6,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
 
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliverySapCancelAdapter;
+import com.step.sacannership.databinding.ModifyCancelViewBinding;
 import com.step.sacannership.listener.CancelListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.model.TModel;
@@ -23,19 +26,17 @@ import com.step.sacannership.tools.SPTool;
 import com.step.sacannership.tools.ToastUtils;
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.OnClick;
 
-public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<DeliveryBean>, CancelListener {
+public class ModifyNumCancelActivity extends BaseTActivity<ModifyCancelViewBinding> implements TPresenter<DeliveryBean>, CancelListener {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.delivery_no)
-    EditText deliveryNo;
-    @BindView(R.id.empty)
-    QMUIEmptyView empty;
-    @BindView(R.id.listView)
-    RecyclerView listView;
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.delivery_no)
+//    EditText deliveryNo;
+//    @BindView(R.id.empty)
+//    QMUIEmptyView empty;
+//    @BindView(R.id.listView)
+//    RecyclerView listView;
 
     private List<DeliveryDetailBean> datas;
     private DeliverySapCancelAdapter adapter;
@@ -46,37 +47,47 @@ public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
-        empty.show("暂无数据", "");
-        deliveryNo.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP) {
+        binding.topBar.setTitle("撤销出库");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v -> onBackPressed());
+
+        binding.empty.show("暂无数据", "");
+        binding.deliveryNo.setOnEditorActionListener((v, actionId, event) -> {
+//            if (event.getAction() == KeyEvent.ACTION_UP) {
+//                getDeliveryMaterialList();
+//                deliveryNo.setText("");
+//            }
+            if (!isTwice()){
                 getDeliveryMaterialList();
-                deliveryNo.setText("");
+                binding.deliveryNo.setText("");
             }
-            QMUIKeyboardHelper.hideKeyboard(deliveryNo);
+
+            QMUIKeyboardHelper.hideKeyboard(v);
             return true;
         });
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        listView.setLayoutManager(manager);
+        binding.listView.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        listView.addItemDecoration(decoration);
+        binding.listView.addItemDecoration(decoration);
 
         datas = new ArrayList<>();
         adapter = new DeliverySapCancelAdapter(datas, this);
-        listView.setAdapter(adapter);
+        binding.listView.setAdapter(adapter);
+
+        binding.btnSubmit.setOnClickListener(v -> cancelDelivery());
     }
 
     private boolean isCancel = false;
-    @OnClick(R.id.btn_submit)
-    public void onViewClicked() {
-        cancelDelivery();
-    }
+//    @OnClick(R.id.btn_submit)
+//    public void onViewClicked() {
+//
+//        cancelDelivery();
+//    }
 
     private void getDeliveryMaterialList() {
-        String billNo = deliveryNo.getText().toString().trim();
+        String billNo = binding.deliveryNo.getText().toString().trim();
         if (TextUtils.isEmpty(billNo)){
             SPTool.showToast(this, "发货单号不能为空");
             return;
@@ -101,7 +112,7 @@ public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<
     private DeliveryBean deliveryBean;
     @Override
     public void getSuccess(DeliveryBean deliveryBean) {
-        empty.hide();
+        binding.empty.hide();
         try {
             this.deliveryBean = null;
             datas.clear();
@@ -117,7 +128,7 @@ public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<
 
     @Override
     public void getFailed(String message) {
-        empty.show("加载失败，请重新扫描", "原因："+message);
+        binding.empty.show("加载失败，请重新扫描", "原因："+message);
     }
 
     private Dialog dialog;
@@ -127,8 +138,8 @@ public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<
             dialog = LoadingDialog.createLoadingDialog(this, "正在请求");
             LoadingDialog.showLoadingDialog(dialog);
         }else {
-            empty.show("加载中", "");
-            empty.setLoadingShowing(true);
+            binding.empty.show("加载中", "");
+            binding.empty.setLoadingShowing(true);
         }
     }
 
@@ -140,7 +151,7 @@ public class ModifyNumCancelActivity extends BaseActivity implements TPresenter<
                 dialog = null;
             }
         }else {
-            empty.hide();
+            binding.empty.hide();
         }
         isCancel = false;
     }

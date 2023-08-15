@@ -20,6 +20,7 @@ import com.step.sacannership.listener.TrayInfoListener;
 import com.step.sacannership.listener.UnBindDeliveryListener;
 import com.step.sacannership.model.bean.AssembleDeleteBean;
 import com.step.sacannership.model.bean.AssembleSubmitBean;
+import com.step.sacannership.model.bean.BindResultBean;
 import com.step.sacannership.model.bean.DeliveryBaseBean;
 import com.step.sacannership.model.bean.DeliveryBean;
 import com.step.sacannership.model.bean.DeliveryBillPalletDetailsBean;
@@ -644,17 +645,17 @@ public class TModel extends BaseModuel{
      * 物料号绑定一个物料条码
      *TPresenter<BindResultBean>
      * */
-    public void bindMaterialNo(Map<String, Object> map,  BindListener presenter){
+    public void bindMaterialNo(Map<String, Object> map,  TPresenter<BindResultBean> presenter){
         if (apiService == null) apiService = ApiManager.getService(ApiService.class);
         Disposable disposable = apiService.bindingMaterial(map)
                 .compose(toMain())
-//                .doOnSubscribe(subscription -> presenter.showDialog("正在请求"))//
+                .doOnSubscribe(subscription -> presenter.showDialog("正在请求"))
                 .subscribe(responseBody -> {
-//                    presenter.dismissDialog();
-                    presenter.bindMaterialSuccess(responseBody);
+                    presenter.dismissDialog();
+                    presenter.getSuccess(responseBody);
                 }, throwable -> {
-//                    presenter.dismissDialog();
-                    presenter.bindMaterialFail(getErrorMessage(throwable));
+                    presenter.dismissDialog();
+                    presenter.getFailed(getErrorMessage(throwable));
                 });
         compositeDisposable.add(disposable);
     }

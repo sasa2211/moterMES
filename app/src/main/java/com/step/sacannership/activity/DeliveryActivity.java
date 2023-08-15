@@ -17,6 +17,7 @@ import com.qmuiteam.qmui.widget.QMUIEmptyView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
+import com.step.sacannership.databinding.DeliveryViewBinding;
 import com.step.sacannership.listener.LogisticsListener;
 import com.step.sacannership.listener.TPresenter;
 import com.step.sacannership.listener.TrayInfoListener;
@@ -34,28 +35,29 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class DeliveryActivity extends BaseActivity implements TrayInfoListener, TPresenter<DeliveryBean>, LogisticsListener {
+public class DeliveryActivity extends BaseTActivity<DeliveryViewBinding> implements TrayInfoListener, TPresenter<DeliveryBean>, LogisticsListener {
+//
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
+//    @BindView(R.id.tray_no)
+//    EditText trayNo;
+//    @BindView(R.id.recycler)
+//    RecyclerView recycler;
+//    @BindView(R.id.empty)
+//    QMUIEmptyView empty;
+//    @BindView(R.id.tv_name)
+//    TextView tnName;
+//
+//    @BindView(R.id.ln_logistic_no)
+//    LinearLayout lnLogisticNo;
+//    @BindView(R.id.ln_logisticType)
+//    LinearLayout lnLogisticType;
+//
+//    @BindView(R.id.logistics_no)
+//    EditText logisticsNoEdit;
+//    @BindView(R.id.logistics_type)
+//    EditText logisticsTypeEdit;
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.tray_no)
-    EditText trayNo;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.empty)
-    QMUIEmptyView empty;
-    @BindView(R.id.tv_name)
-    TextView tnName;
-
-    @BindView(R.id.ln_logistic_no)
-    LinearLayout lnLogisticNo;
-    @BindView(R.id.ln_logisticType)
-    LinearLayout lnLogisticType;
-
-    @BindView(R.id.logistics_no)
-    EditText logisticsNoEdit;
-    @BindView(R.id.logistics_type)
-    EditText logisticsTypeEdit;
     private DeliveryAdapter adapter;
     private List<TrayDeliveryBean> datas;
 
@@ -68,61 +70,127 @@ public class DeliveryActivity extends BaseActivity implements TrayInfoListener, 
     @Override
     protected void initView() {
         hasPallet = getIntent().getBooleanExtra("pallet", true);
-        tnName.setText(hasPallet ? "托盘" : "发运单号");
-        trayNo.setHint(hasPallet ? "扫描托盘条码" :  "扫描发运单条码");
+        binding.topBar.setTitle(hasPallet ? "托盘" : "发运单号");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
+        binding.trayNo.setHint(hasPallet ? "扫描托盘条码" :  "扫描发运单条码");
 
-        lnLogisticNo.setVisibility(hasPallet ? View.GONE :View.VISIBLE);
-        lnLogisticType.setVisibility(hasPallet ? View.GONE :View.VISIBLE);
+        binding.lnLogisticNo.setVisibility(hasPallet ? View.GONE :View.VISIBLE);
+        binding.lnLogisticType.setVisibility(hasPallet ? View.GONE :View.VISIBLE);
 
-        initToolBar(toolbar);
-        setOnclick(trayNo);
+//        initToolBar(toolbar);
+        setOnclick(binding.trayNo);
 
-        trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+        binding.trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//                /**
+//                 * 获取托盘数据
+//                 * */
+//                getTrayData();
+//                trayNo.setText("");
+//                requestFocus(logisticsTypeEdit);
+//            }
+            if (!isTwice()){
                 /**
                  * 获取托盘数据
                  * */
                 getTrayData();
-                trayNo.setText("");
-                requestFocus(logisticsTypeEdit);
+                binding.trayNo.setText("");
+                requestFocus(binding.logisticsType);
             }
-            QMUIKeyboardHelper.hideKeyboard(trayNo);
+            QMUIKeyboardHelper.hideKeyboard(binding.trayNo);
             return true;
         });
-        logisticsTypeEdit.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
-                requestFocus(logisticsNoEdit);
+        binding.logisticsType.setOnEditorActionListener((textView, i, keyEvent) -> {
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//                requestFocus(logisticsNoEdit);
+//            }
+            if (!isTwice()){
+                requestFocus(binding.logisticsNo);
             }
-            QMUIKeyboardHelper.hideKeyboard(trayNo);
+            QMUIKeyboardHelper.hideKeyboard(binding.trayNo);
             return true;
         });
-        logisticsNoEdit.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
-                String logistics = logisticsNoEdit.getText().toString()+",";
-                logisticsNoEdit.setText(logistics);
-                logisticsNoEdit.setSelection(logistics.length());
+        binding.logisticsNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//                String logistics = logisticsNoEdit.getText().toString()+",";
+//                logisticsNoEdit.setText(logistics);
+//                logisticsNoEdit.setSelection(logistics.length());
+//            }
+            if (!isTwice()){
+                String logistics = binding.logisticsNo.getText().toString()+",";
+                binding.logisticsNo.setText(logistics);
+                binding.logisticsNo.setSelection(logistics.length());
             }
-            QMUIKeyboardHelper.hideKeyboard(trayNo);
+            QMUIKeyboardHelper.hideKeyboard(binding.trayNo);
             return true;
         });
 
-        empty.setLoadingShowing(false);
-        empty.show( "暂无数据", "");
+        binding.empty.setLoadingShowing(false);
+        binding.empty.show( "暂无数据", "");
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler.setLayoutManager(manager);
+        binding.recycler.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        recycler.addItemDecoration(decoration);
+        binding.recycler.addItemDecoration(decoration);
 
         datas = new ArrayList<>();
         adapter = new DeliveryAdapter(datas, this, 4);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
+
+        binding.btnDelivery.setOnClickListener(v -> {
+            if (tModel == null) tModel = new TModel();
+            String logisticsNo = binding.logisticsNo.getText().toString().trim();
+            String logisticsName = binding.logisticsType.getText().toString().trim();
+            if (!hasPallet){
+                if (TextUtils.isEmpty(logisticsName)){
+                    ToastUtils.showToast(this, "选择物流公司");
+                    return;
+                }
+                if (logisticsNo.endsWith(",")){
+                    logisticsNo = logisticsNo.substring(0, logisticsNo.length()-1);
+                }
+            }
+
+            if (hasPallet){
+                if (infoBean == null) return;
+                new QMUIDialog.MessageDialogBuilder(this)
+                        .setMessage("请核对托盘编号："+infoBean.getPalletNO())
+                        .addAction("取消", (dialog, index) -> dialog.dismiss())
+                        .addAction("确定", (dialog, index) -> {
+                            tModel.deliveryTray(infoBean.getPalletNO(), DeliveryActivity.this);
+                            dialog.dismiss();
+                        }).create().show();
+            }else {
+                if (delivery == null) return;
+                Request request = new Request();
+                request.put("logisticsName", logisticsName);
+                request.put("logisticsOrderNO", logisticsNo);
+                new QMUIDialog.MessageDialogBuilder(this)
+                        .setMessage("请核对发运单编号："+delivery.getBillNo())
+                        .addAction("取消", (dialog, index) -> dialog.dismiss())
+                        .addAction("确定", (dialog, index) -> {
+                            request.put("billNo", delivery.getBillNo());
+                            tModel.deliveryTrayUnPallet(request, DeliveryActivity.this);
+                            dialog.dismiss();
+                        }).create().show();
+            }
+        });
+        binding.logisticsImg.setOnClickListener(v -> {
+            if (logisticsListBeans == null){
+                if (tModel == null){
+                    tModel = new TModel();
+                }
+                tModel.getLogisticsList(this);
+            }else {
+                getLogisticsSuccess(logisticsListBeans);
+            }
+        });
     }
 
     public void getTrayData(){
-        String billNO = trayNo.getText().toString().trim();
+        String billNO = binding.trayNo.getText().toString().trim();
         if (!TextUtils.isEmpty(billNO)){
             if (tModel == null) tModel = new TModel();
             if (hasPallet){
@@ -131,65 +199,6 @@ public class DeliveryActivity extends BaseActivity implements TrayInfoListener, 
                 tModel.getDeliveryListUnPallet(billNO, this);
             }
         }
-    }
-
-    @OnClick({R.id.btn_delivery, R.id.logistics_img})
-    public void onViewClicked(View view) {
-        switch (view.getId()){
-            case R.id.btn_delivery:
-                if (tModel == null) tModel = new TModel();
-                String logisticsNo = logisticsNoEdit.getText().toString().trim();
-                String logisticsName = logisticsTypeEdit.getText().toString().trim();
-                Log.e("TAGGG", "name="+logisticsName);
-                Log.e("TAGGG", "no="+logisticsNo);
-                if (!hasPallet){
-                    if (TextUtils.isEmpty(logisticsName)){
-                        ToastUtils.showToast(this, "选择物流公司");
-                        return;
-                    }
-                    if (logisticsNo.endsWith(",")){
-                        logisticsNo = logisticsNo.substring(0, logisticsNo.length()-1);
-                    }
-                }
-
-
-                if (hasPallet){
-                    if (infoBean == null) return;
-                    new QMUIDialog.MessageDialogBuilder(this)
-                            .setMessage("请核对托盘编号："+infoBean.getPalletNO())
-                            .addAction("取消", (dialog, index) -> dialog.dismiss())
-                            .addAction("确定", (dialog, index) -> {
-                                tModel.deliveryTray(infoBean.getPalletNO(), DeliveryActivity.this);
-                                dialog.dismiss();
-                            }).create().show();
-
-                }else {
-                    if (delivery == null) return;
-                    Request request = new Request();
-                    request.put("logisticsName", logisticsName);
-                    request.put("logisticsOrderNO", logisticsNo);
-                    new QMUIDialog.MessageDialogBuilder(this)
-                            .setMessage("请核对发运单编号："+delivery.getBillNo())
-                            .addAction("取消", (dialog, index) -> dialog.dismiss())
-                            .addAction("确定", (dialog, index) -> {
-                                request.put("billNo", delivery.getBillNo());
-                                tModel.deliveryTrayUnPallet(request, DeliveryActivity.this);
-                                dialog.dismiss();
-                            }).create().show();
-                }
-                break;
-            case R.id.logistics_img:
-                if (logisticsListBeans == null){
-                    if (tModel == null){
-                        tModel = new TModel();
-                    }
-                    tModel.getLogisticsList(this);
-                }else {
-                    getLogisticsSuccess(logisticsListBeans);
-                }
-                break;
-        }
-
     }
 
     private TrayInfoBean infoBean;
@@ -205,30 +214,30 @@ public class DeliveryActivity extends BaseActivity implements TrayInfoListener, 
             }
         }
         if (datas.size() == 0){
-            empty.setLoadingShowing(false);
-            empty.show("暂无数据", "");
-            empty.setVisibility(View.VISIBLE);
+            binding.empty.setLoadingShowing(false);
+            binding.empty.show("暂无数据", "");
+            binding.empty.setVisibility(View.VISIBLE);
         }else {
-            empty.setVisibility(View.GONE);
+            binding.empty.setVisibility(View.GONE);
         }
         adapter.notifyDataSetChanged();
     }
 
     @Override
     public void getTrayFailed(String message) {
-        empty.show(false, "加载失败", "", "重新加载", view -> getTrayData());
+        binding.empty.show(false, "加载失败", "", "重新加载", view -> getTrayData());
     }
 
     @Override
     public void showDialog(String message) {
-        empty.setLoadingShowing(true);
-        empty.show("正在加载", "");
+        binding.empty.setLoadingShowing(true);
+        binding.empty.show("正在加载", "");
     }
 
     @Override
     public void dismissDialog() {
-        empty.setLoadingShowing(false);
-        empty.setVisibility(View.GONE);
+        binding.empty.setLoadingShowing(false);
+        binding.empty.setVisibility(View.GONE);
     }
     DeliveryBean delivery;
     @Override
@@ -273,7 +282,7 @@ public class DeliveryActivity extends BaseActivity implements TrayInfoListener, 
 
     @Override
     public void getFailed(String message) {
-        empty.show("加载失败", message);
+        binding.empty.show("加载失败", message);
     }
     List<LogisticsListBean> logisticsListBeans;
     @Override
@@ -295,7 +304,7 @@ public class DeliveryActivity extends BaseActivity implements TrayInfoListener, 
                 .addAction("取消", (dialog, index) -> dialog.dismiss())
                 .addAction("确定", (dialog, index) -> {
                     int checkedIndex = builder.getCheckedIndex();
-                    logisticsTypeEdit.setText(items.get(checkedIndex));
+                    binding.logisticsType.setText(items.get(checkedIndex));
                     dialog.dismiss();
                 })
                 .create().show();

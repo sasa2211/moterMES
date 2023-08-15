@@ -44,7 +44,6 @@
             android:name=".activity.ArriveActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden" />
 
-
         <activity android:name=".activity.SearchPalletActivity" />
         <activity
             android:name=".activity.BindMaterialActivity"
@@ -71,6 +70,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden" />
         <activity
             android:name=".activity.LoginActivity"
+            android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

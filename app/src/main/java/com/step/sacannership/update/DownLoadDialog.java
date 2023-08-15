@@ -7,9 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.qmuiteam.qmui.widget.QMUIProgressBar;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogBuilder;
+import com.qmuiteam.qmui.widget.dialog.QMUIDialogView;
 import com.step.sacannership.R;
 
 public class DownLoadDialog extends QMUIDialogBuilder {
@@ -23,9 +28,9 @@ public class DownLoadDialog extends QMUIDialogBuilder {
     private TextView tvProgress;
     private QMUIProgressBar progressBar;
     private TextView tvCancel;
-
+    @Nullable
     @Override
-    protected void onCreateContent(QMUIDialog qmuiDialog, ViewGroup parent, Context context) {
+    protected View onCreateContent(@NonNull QMUIDialog dialog, @NonNull QMUIDialogView parent, @NonNull Context context) {
         View view = LayoutInflater.from(context).inflate(R.layout.down_progress_view, parent, false);
         parent.addView(view);
 
@@ -38,8 +43,8 @@ public class DownLoadDialog extends QMUIDialogBuilder {
             DownloadManager.getInstance().cancel(url);
             mDialog.dismiss();
         });
+        return view;
     }
-
 
     int progressBefore = 0;
     public void setProgress(int progress, String progressText){
@@ -55,4 +60,6 @@ public class DownLoadDialog extends QMUIDialogBuilder {
     public void dismiss(){
         mDialog.dismiss();
     }
+
+
 }

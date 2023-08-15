@@ -73,7 +73,10 @@ public class TrayTestActivity extends BaseActivity implements TrayInfoListener /
 
         setOnclick(trayNo);
         trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+//                getData();
+//            }
+            if (!isTwice()){
                 getData();
             }
             QMUIKeyboardHelper.hideKeyboard(trayNo);

@@ -1,122 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white"
-    android:orientation="vertical">
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:background="@color/white"
-        >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="发货单物料绑定"
-            android:gravity="center_vertical"
-            android:textSize="16dp"
-            android:textColor="@color/black"
-            />
-    </androidx.appcompat.widget.Toolbar>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/line"
-        android:background="@color/line"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_margin="10dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="发货单编号"
-            android:textColor="@color/grey5"
-            android:textSize="@dimen/dp14"
-            android:gravity="center"
-            />
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/tray_no"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/text_bg"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginBottom="1dp"
-            android:gravity="center_vertical"
-            android:paddingLeft="10dp"
-            android:textSize="@dimen/dp12"
-            android:textColor="@color/grey5"
-            android:textColorHint="@color/greyc"
-            android:hint="扫描发货单编号"
-            android:imeOptions="actionSend"
-            android:layout_marginRight="10dp"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_margin="10dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="物料条码"
-            android:textColor="@color/grey5"
-            android:textSize="@dimen/dp14"
-            android:gravity="center"
-            />
+<!--        <androidx.appcompat.widget.Toolbar-->
+<!--            android:id="@+id/toolbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:background="@color/white">-->
 
-        <EditText
-            android:id="@+id/material_no"
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:text="发货单物料绑定"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:textSize="16dp"-->
+<!--                android:textColor="@color/black" />-->
+<!--        </androidx.appcompat.widget.Toolbar>-->
+        <com.qmuiteam.qmui.widget.QMUITopBarLayout
+            android:id="@+id/topBar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/text_bg"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginBottom="1dp"
-            android:gravity="center_vertical"
-            android:paddingLeft="10dp"
-            android:textSize="@dimen/dp12"
-            android:textColor="@color/grey5"
-            android:textColorHint="@color/greyc"
-            android:hint="扫描物料条码"
-            android:imeOptions="actionSend"
-            android:layout_marginRight="10dp"
+            android:layout_height="48dp"
             />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/line"
+            android:background="@color/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="发货单编号"
+                android:textColor="@color/grey5"
+                android:textSize="@dimen/dp14"
+                android:gravity="center" />
+
+            <EditText
+                android:id="@+id/tray_no"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/text_bg"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:textSize="@dimen/dp12"
+                android:textColor="@color/grey5"
+                android:textColorHint="@color/greyc"
+                android:hint="扫描发货单编号"
+                android:imeOptions="actionSend"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="物料条码"
+                android:textColor="@color/grey5"
+                android:textSize="@dimen/dp14"
+                android:gravity="center" />
+
+            <EditText
+                android:id="@+id/material_no"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/text_bg"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:textSize="@dimen/dp12"
+                android:textColor="@color/grey5"
+                android:textColorHint="@color/greyc"
+                android:hint="扫描物料条码"
+                android:imeOptions="actionSend"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            tools:text="加载中"
+            android:gravity="center_vertical"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:textSize="@dimen/dp14"
+            android:textColor="@color/black" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_save_bind"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@drawable/btn_login"
+            android:text="保存绑定"
+            android:gravity="center"
+            android:textSize="@dimen/dp14"
+            android:textColor="@color/white"
+            android:layout_marginLeft="-15dp"
+            android:layout_marginRight="-15dp" />
     </LinearLayout>
-    <TextView
-        android:id="@+id/tv_message"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        tools:text="加载中"
-        android:gravity="center_vertical"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:textSize="@dimen/dp14"
-        android:textColor="@color/black"
-        />
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        />
-    <TextView
-        android:id="@+id/tv_save_bind"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="@drawable/btn_login"
-        android:text="保存绑定"
-        android:gravity="center"
-        android:textSize="@dimen/dp14"
-        android:textColor="@color/white"
-        android:layout_marginLeft="-15dp"
-        android:layout_marginRight="-15dp"
-        />
-</LinearLayout>
+</layout>

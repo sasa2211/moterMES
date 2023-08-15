@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.step.sacannership.R;
 import com.step.sacannership.adapter.DeliveryAdapter;
+import com.step.sacannership.databinding.UnpalletBindMaterialViewBinding;
 import com.step.sacannership.fragment.ExportSnDialog;
 import com.step.sacannership.listener.MaterialBindListener;
 import com.step.sacannership.listener.SyncCodeListener;
@@ -40,18 +42,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class BindMaterialActivity extends BaseActivity implements TPresenter<DeliveryBean>, MaterialBindListener, SyncCodeListener {
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.tray_no)
-    EditText trayNo;
-    @BindView(R.id.material_no)
-    EditText materialNo;
-    @BindView(R.id.recycler)
-    RecyclerView recycler;
-    @BindView(R.id.tv_message)
-    TextView tvMessage;
+public class BindMaterialActivity extends BaseTActivity<UnpalletBindMaterialViewBinding> implements TPresenter<DeliveryBean>, MaterialBindListener, SyncCodeListener {
 
     private DeliveryAdapter adapter;
     private List<TrayDeliveryBean> datas;
@@ -63,33 +54,33 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
 
     @Override
     protected void initView() {
-        initToolBar(toolbar);
-
-        trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+        binding.topBar.setTitle("发货单物料绑定");
+        binding.topBar.addLeftBackImageButton().setOnClickListener(v->onBackPressed());
+        binding.trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (!isTwice()){
                 getTrayInfo();
             }
-            QMUIKeyboardHelper.hideKeyboard(trayNo);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
-        materialNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+        binding.materialNo.setOnEditorActionListener((textView, i, keyEvent) -> {
+            if (!isTwice()){
                 bindMaterial();
             }
-            QMUIKeyboardHelper.hideKeyboard(trayNo);
+            QMUIKeyboardHelper.hideKeyboard(textView);
             return true;
         });
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler.setLayoutManager(manager);
+        binding.recycler.setLayoutManager(manager);
 
         DividerItemDecoration decoration = new DividerItemDecoration(this, manager.getOrientation());
-        recycler.addItemDecoration(decoration);
+        binding.recycler.addItemDecoration(decoration);
 
         datas = new ArrayList<>();
         adapter = new DeliveryAdapter(datas, this, 1);
-        recycler.setAdapter(adapter);
+        binding.recycler.setAdapter(adapter);
         adapter.setListener(new DeliveryAdapter.EditNumListener() {
             @Override
             public void changeNum(String deliveryNo, String materialNo, String rowIndex) {
@@ -145,22 +136,23 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
                 changeNum = true;
             }
         });
+
+        binding.tvSaveBind.setOnClickListener(v -> {
+            if (System.currentTimeMillis() - clickTime < 1000){
+                ToastUtils.showToast(this, "请不要连续点击");
+                return;
+            }
+            clickTime = System.currentTimeMillis();
+            saveInfo();
+        });
     }
 
     private long clickTime = System.currentTimeMillis();
-    @OnClick(R.id.tv_save_bind)
-    public void onViewClick(){
-        if (System.currentTimeMillis() - clickTime < 1000){
-            ToastUtils.showToast(this, "请不要连续点击");
-            return;
-        }
-        clickTime = System.currentTimeMillis();
-        saveInfo();
-    }
 
     private void saveInfo(){
 
         if (deliveryBean == null){
+            createMediaPlayer(R.raw.failed);
             return;
         }
         List<NoPalletDetails> sNPDetails = deliveryBean.getSdDeliveryBillNoPalletDetails();
@@ -199,7 +191,7 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
         map.put("palletID", null);
         map.put("deliveryBillID", deliveryBean.getPkId());
 
-        String materialNoText = materialNo.getText().toString().trim();
+        String materialNoText = binding.materialNo.getText().toString().trim();
         if (TextUtils.isEmpty(materialNoText)){
             ToastUtils.showToast(this, "请扫描物料条码");
             return;
@@ -210,12 +202,13 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
     }
     public void getTrayInfo(){
         if (tModel == null) tModel = new TModel();
-        String billNO = trayNo.getText().toString().trim();
+        String billNO = binding.trayNo.getText().toString().trim();
         tModel.getDeliveryListUnPallet(billNO, this);
     }
     DeliveryBean deliveryBean;
     @Override
     public void getSuccess(DeliveryBean delivery) {
+        createMediaPlayer(R.raw.success);
         this.deliveryBean = delivery;
         if (deliveryBean == null) return;
 
@@ -254,22 +247,23 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
 
         adapter.notifyDataSetChanged();
 
-        requestFocus(materialNo);
+        requestFocus(binding.materialNo);
     }
 
     @Override
     public void getFailed(String message) {
-        tvMessage.setText("失败："+message);
+        createMediaPlayer(R.raw.failed);
+        binding.tvMessage.setText("失败："+message);
     }
 
     @Override
     public void showDialog(String message) {
-        tvMessage.setText(message);
+        binding.tvMessage.setText(message);
     }
 
     @Override
     public void dismissDialog() {
-        tvMessage.setText("");
+        binding.tvMessage.setText("");
     }
 
     private boolean changeNum = false;
@@ -330,9 +324,9 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
     public void bindMaterialNoPalletSuccess(BindResultBean map) {
         int resultCode = map.getResultCode();
         if (resultCode == 0){
-            tvMessage.setText("绑定成功");
-            materialNo.setText("");
-            requestFocus(materialNo);
+            binding.tvMessage.setText("绑定成功");
+            binding.materialNo.setText("");
+            requestFocus(binding.materialNo);
 
             String materialNo = map.getMaterialNo();
             int deliveryBillID = map.getDeliveryBillID();
@@ -361,12 +355,12 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
             messageDialog = new QMUIDialog.MessageDialogBuilder(this)
                     .setMessage(errorMsg)
                     .addAction("关闭", (dialog, index) -> {
-                        materialNo.setText("");
-                        requestFocus(materialNo);
+                        binding.materialNo.setText("");
+                        requestFocus(binding.materialNo);
                         dialog.dismiss();
                     })
                     .addAction("导入", (dialog, index) -> {
-                        String materialCode = materialNo.getText().toString().trim();
+                        String materialCode = binding.materialNo.getText().toString().trim();
                         if (TextUtils.isEmpty(materialCode)){
                             return;
                         }
@@ -384,8 +378,8 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
 
                             @Override
                             public void importFail() {
-                                materialNo.setText("");
-                                requestFocus(materialNo);
+                                binding.materialNo.setText("");
+                                requestFocus(binding.materialNo);
                                 exportSnDialog.dismiss();
                                 if (messageDialog != null && messageDialog.isShowing()){
                                     messageDialog.dismiss();
@@ -395,7 +389,7 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
                     })
                     .addAction("更新", (dialog, index) -> {
                         if (tModel == null) tModel = new TModel();
-                        String materialCode = materialNo.getText().toString().trim();
+                        String materialCode = binding.materialNo.getText().toString().trim();
                         tModel.syncBarcode(materialCode, BindMaterialActivity.this);
                     }).create();
             messageDialog.show();
@@ -408,8 +402,8 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
                 .setTitle("绑定失败")
                 .setMessage("提示："+errorMessage)
                 .addAction("确定", (dialog, index) -> dialog.dismiss()).create().show();
-        tvMessage.setText(errorMessage);
-        requestFocus(materialNo);
+        binding.tvMessage.setText(errorMessage);
+        requestFocus(binding.materialNo);
     }
 
     @Override
@@ -425,8 +419,8 @@ public class BindMaterialActivity extends BaseActivity implements TPresenter<Del
 
     @Override
     public void syncFail(String message) {
-        materialNo.setText("");
-        requestFocus(materialNo);
+        binding.materialNo.setText("");
+        requestFocus(binding.materialNo);
         SPTool.showToast(this, message);
     }
 

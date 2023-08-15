@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.hgdendi.expandablerecycleradapter.BaseExpandableRecyclerViewAdapter;
 import com.step.sacannership.R;
 import com.step.sacannership.model.bean.DeliveryBillPalletDetailsBean;

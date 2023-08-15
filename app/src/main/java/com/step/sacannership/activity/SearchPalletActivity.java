@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.EditText;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
@@ -41,9 +42,13 @@ public class SearchPalletActivity extends BaseActivity implements TPresenter<Lis
         initToolBar(toolbar);
         requestFocus(deliveryNoTV);
         deliveryNoTV.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP){
+//            if (event.getAction() == KeyEvent.ACTION_UP){
+//                getData();
+//            }
+            if (!isTwice()){
                 getData();
             }
+            Log.e("TAGGG", "request");
             QMUIKeyboardHelper.hideKeyboard(deliveryNoTV);
             return true;
         });

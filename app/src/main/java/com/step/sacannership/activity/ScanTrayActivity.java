@@ -64,7 +64,13 @@ public class ScanTrayActivity extends BaseActivity implements TrayInfoListener, 
             getTrayData();
         }
         trayNo.setOnEditorActionListener((textView, i, keyEvent) -> {
-            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//            if (keyEvent.getAction() == KeyEvent.ACTION_UP){
+//                /**
+//                 * 获取托盘数据
+//                 * */
+//                getTrayData();
+//            }
+            if (!isTwice()){
                 /**
                  * 获取托盘数据
                  * */
@@ -74,7 +80,21 @@ public class ScanTrayActivity extends BaseActivity implements TrayInfoListener, 
             return true;
         });
         editDelivery.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP){
+//            if (event.getAction() == KeyEvent.ACTION_UP){
+//                /**
+//                 * 检索托盘中的数据
+//                 * */
+//                List<TrayDeliveryBean> searchDatas = getDataBySearch(editDelivery.getText().toString().trim());
+//                this.datas.clear();
+//                this.datas.addAll(searchDatas);
+//                adapter.notifyDataSetChanged();
+//                if (datas.isEmpty()){
+//                    empty.show("暂无数据", "");
+//                }else {
+//                    empty.hide();
+//                }
+//            }
+            if (!isTwice()){
                 /**
                  * 检索托盘中的数据
                  * */
